@@ -1,0 +1,15 @@
+.footer {
+  margin-top: auto; /* 🔥 pushes footer to bottom */
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.footer-right {
+  font-size: 12px;
+}

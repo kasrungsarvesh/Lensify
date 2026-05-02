@@ -1,10 +1,14 @@
+import DashboardGrid from "../../components/dashboard/DashboardGrid";
+
 const Dashboard = () => {
   return (
     <div className="dashboard">
-      <h1 className="title">Dashboard</h1>
-      <p className="subtitle">
-        Welcome to EyeHub. Here you can manage customers and records.
-      </p>
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Overview of your optical shop</p>
+      </div>
+
+      <DashboardGrid />
     </div>
   );
 };
