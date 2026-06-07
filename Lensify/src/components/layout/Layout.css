@@ -1,0 +1,63 @@
+/* RESET BASIC */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+.main {
+  flex: 1;
+  margin-left: 280px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  margin-top: 80px;
+  overflow-y: auto;
+}
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  background: linear-gradient(
+    180deg,
+    #071b4d 0%,
+    #021233 100%
+  );
+
+  color: white;
+
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: #4f8cff transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #4f8cff;
+  border-radius: 20px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #6ba0ff;
+}

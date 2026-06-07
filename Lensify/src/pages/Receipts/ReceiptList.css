@@ -1,0 +1,15 @@
+.edit-btn {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-decoration: none;
+
+  background: #fef3c7;
+  color: #d97706;
+
+  border-radius: 8px;
+}

@@ -1,0 +1,120 @@
+
+
+.register-card {
+  max-width: 520px;
+}
+
+.role-select {
+  width: 100%;
+  padding: 14px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,.15);
+
+  background: rgba(255,255,255,.08);
+
+  color: white;
+
+  outline: none;
+
+  transition: .3s;
+}
+
+.role-select:focus {
+  border-color: #60a5fa;
+
+  box-shadow:
+      0 0 0 3px rgba(96,165,250,.2),
+      0 0 20px rgba(96,165,250,.25);
+}
+
+.role-select option {
+  color: black;
+}
+
+.auth-link {
+  margin-top: 20px;
+
+  text-align: center;
+
+  color: #cbd5e1;
+
+  font-size: 14px;
+}
+
+.auth-link a {
+  color: #60a5fa;
+
+  text-decoration: none;
+
+  margin-left: 5px;
+
+  font-weight: 600;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+/* Register page slightly taller */
+
+.register-card {
+  padding: 35px 40px;
+}
+
+/* Smooth field animation */
+
+.input-group {
+  animation: fadeInUp .5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.register-card {
+  max-width: 520px;
+  max-height: 85vh;
+
+  overflow-y: auto;
+
+  padding-right: 10px;
+}
+.register-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.register-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.register-card::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+}
+
+.register-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+@media (max-width: 768px) {
+  .login-container {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .right-panel {
+    padding: 20px;
+  }
+
+  .register-card {
+    width: 100%;
+  }
+}

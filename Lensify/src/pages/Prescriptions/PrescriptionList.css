@@ -1,0 +1,161 @@
+.prescription-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+
+.prescription-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prescription-header h2 {
+  font-size: 28px;
+  color: #1e293b;
+}
+
+.prescription-header p {
+  color: #64748b;
+}
+
+/* Add Button */
+
+.add-prescription-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: #2563eb;
+  color: white;
+
+  text-decoration: none;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+}
+
+.add-prescription-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Search */
+
+.search-card {
+  background: white;
+  padding: 20px;
+
+  border-radius: 14px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.search-card input {
+  width: 100%;
+  padding: 12px;
+
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+}
+
+/* Statistics */
+
+.prescription-stats {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 20px;
+}
+
+.stat-box {
+  background: white;
+
+  padding: 20px;
+
+  border-radius: 14px;
+
+  display: flex;
+  gap: 15px;
+  align-items: center;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.stat-box svg {
+  font-size: 28px;
+  color: #2563eb;
+}
+
+.stat-box h3 {
+  font-size: 24px;
+}
+
+/* Table */
+
+.table-card {
+  background: white;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f8fafc;
+}
+
+th {
+  padding: 16px;
+  text-align: left;
+}
+
+td {
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+tbody tr:hover {
+  background: #f8fbff;
+}
+
+/* Actions */
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.view-btn,
+.edit-btn {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+}
+
+.view-btn {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.edit-btn {
+  background: #fef3c7;
+  color: #d97706;
+}
