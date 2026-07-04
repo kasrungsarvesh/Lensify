@@ -1,0 +1,32 @@
+.checkbox-section{
+margin-top:30px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:18px 40px;
+}
+
+.checkbox-section label{
+display:flex;
+align-items:center;
+gap:12px;
+font-size:15px;
+font-weight:500;
+cursor:pointer;
+color:#334155;
+}
+
+.checkbox-section input[type="checkbox"]{
+width:18px;
+height:18px;
+accent-color:#2563eb;
+margin:0;
+flex-shrink:0;
+}
+
+@media(max-width:768px){
+
+.checkbox-section{
+grid-template-columns:1fr;
+}
+
+}

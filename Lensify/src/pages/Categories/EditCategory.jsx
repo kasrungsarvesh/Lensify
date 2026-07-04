@@ -19,6 +19,7 @@ function EditCategory() {
     });
   };
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
 

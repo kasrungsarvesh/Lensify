@@ -46,6 +46,9 @@ import EditCategory from "../pages/Categories/EditCategory";
 
 /* Appointments */
 import AppointmentList from "../pages/Appointments/AppointmentList";
+import AddAppointment from "../pages/Appointments/AddAppointment";
+import ViewAppointment from "../pages/Appointments/ViewAppointment";
+import EditAppointment from "../pages/Appointments/EditAppointment";
 
 /* Reports */
 import Reports from "../pages/Reports/Reports";
@@ -106,7 +109,13 @@ function AppRoutes() {
         <Route path="/categories/edit/:id" element={<EditCategory />}/>
 
         {/* Appointments */}
-        <Route path="/appointments" element={<AppointmentList />} />
+       <Route path="/appointments" element={<AppointmentList />} />
+
+      <Route path="/appointments/add" element={<AddAppointment />} />
+
+      <Route path="/appointments/view/:id" element={<ViewAppointment />} />
+
+      <Route path="/appointments/edit/:id" element={<EditAppointment />} />
 
         {/* Reports */}
         <Route path="/reports" element={<Reports />} />

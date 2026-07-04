@@ -1,0 +1,48 @@
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+.report-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.report-actions button:hover {
+  transform: translateY(-2px);
+}
+
+.pdf-btn {
+  background: #dc2626;
+}
+
+.pdf-btn:hover {
+  background: #b91c1c;
+}
+
+.excel-btn {
+  background: #15803d;
+}
+
+.excel-btn:hover {
+  background: #166534;
+}
+
+.print-btn {
+  background: #2563eb;
+}
+
+.print-btn:hover {
+  background: #1d4ed8;
+}

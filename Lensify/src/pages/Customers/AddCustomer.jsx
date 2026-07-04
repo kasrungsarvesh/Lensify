@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaUserPlus, FaSave, FaUndo } from "react-icons/fa";
 import "./AddCustomer.css";
+import { successToast } from "../../utils/toast";
 
 function AddCustomer() {
   const [customer, setCustomer] = useState({

@@ -1,16 +1,33 @@
-import "./StatsCard.css";
-const StatsCard = ({ title, value, change }) => {
+import "./dashboard.css";
+
+function StatsCard({
+  title,
+  value,
+  change,
+  icon,
+  color,
+}) {
   return (
     <div className="stats-card">
-      <div className="stats-header">
-        <span>{title}</span>
+
+      <div className={`card-icon ${color}`}>
+
+        {icon}
+
       </div>
 
-      <h2>{value}</h2>
+      <div className="card-content">
 
-      <p className="change">{change}</p>
+        <h4>{title}</h4>
+
+        <h2>{value}</h2>
+
+        <span>{change}</span>
+
+      </div>
+
     </div>
   );
-};
+}
 
 export default StatsCard;

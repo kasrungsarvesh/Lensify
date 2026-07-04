@@ -1,0 +1,109 @@
+.transactions-card {
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 25px;
+
+  margin-top: 25px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,.05);
+
+}
+
+.transactions-header{
+
+margin-bottom:20px;
+
+}
+
+.transactions-header h3{
+
+font-size:22px;
+
+color:#0f172a;
+
+}
+
+.transactions-table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+.transactions-table th{
+
+text-align:left;
+
+padding:16px;
+
+background:#f8fafc;
+
+color:#475569;
+
+}
+
+.transactions-table td{
+
+padding:16px;
+
+border-top:1px solid #e2e8f0;
+
+}
+
+.transactions-table tbody tr:hover{
+
+background:#f8fbff;
+
+}
+
+.payment{
+
+padding:6px 14px;
+
+border-radius:20px;
+
+font-size:13px;
+
+font-weight:600;
+
+}
+
+.paid{
+
+background:#dcfce7;
+
+color:#15803d;
+
+}
+
+.pending{
+
+background:#fef3c7;
+
+color:#b45309;
+
+}
+
+.amount{
+
+font-weight:700;
+
+color:#2563eb;
+
+}
+
+@media(max-width:900px){
+
+.transactions-table{
+
+display:block;
+
+overflow-x:auto;
+
+}
+
+}
