@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FaUsers,
   FaRupeeSign,
@@ -6,44 +7,58 @@ import {
 } from "react-icons/fa";
 
 import StatsCard from "./StatsCard";
+import { getDashboard } from "../../api/dashboardApi";
 import "./dashboard.css";
 
 function DashboardGrid() {
+  const [dashboard, setDashboard] = useState(null);
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      const response = await getDashboard();
+      setDashboard(response.data);
+    } catch (error) {
+      console.error("Dashboard Error:", error);
+    }
+  };
+
   return (
     <div className="dashboard-grid">
-
       <StatsCard
-        title="Today's Customers"
-        value="12"
-        change="+2 Today"
+        title="Total Customers"
+        value={dashboard?.totalCustomers ?? 0}
+        change="Registered Customers"
         icon={<FaUsers />}
         color="blue"
       />
 
       <StatsCard
-        title="Today's Revenue"
-        value="₹12,500"
-        change="+8%"
+        title="Total Revenue"
+        value={`₹${dashboard?.totalRevenue ?? 0}`}
+        change="Overall Revenue"
         icon={<FaRupeeSign />}
         color="green"
       />
 
       <StatsCard
-        title="Prescriptions"
-        value="18"
-        change="Today's Rx"
+        title="Total Bills"
+        value={dashboard?.totalBills ?? 0}
+        change="Generated Bills"
         icon={<FaFileMedical />}
         color="orange"
       />
 
       <StatsCard
-        title="Appointments"
-        value="5"
-        change="Pending"
+        title="Pending Orders"
+        value={dashboard?.pendingOrders ?? 0}
+        change="Orders Pending"
         icon={<FaCalendarAlt />}
         color="purple"
       />
-
     </div>
   );
 }

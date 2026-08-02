@@ -1,197 +1,205 @@
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
-  FaUser,
   FaPhone,
   FaEnvelope,
   FaMapMarkerAlt,
   FaEye,
   FaFileInvoice,
   FaRupeeSign,
+  FaArrowLeft,
+  FaEdit,
 } from "react-icons/fa";
+
+import { getCustomerById } from "../../api/customerApi";
 
 import "./CustomerDetails.css";
 
 function CustomerDetails() {
+  const { id } = useParams();
+
+  const [customer, setCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCustomer();
+  }, []);
+
+  const fetchCustomer = async () => {
+    try {
+      const response = await getCustomerById(id);
+      setCustomer(response.data.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <h2>Loading Customer...</h2>;
+  }
+
+  if (!customer) {
+    return <h2>Customer Not Found</h2>;
+  }
+
   return (
     <div className="customer-details">
+      {/* Header Buttons */}
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+        }}
+      >
+        <Link to="/customers" className="add-btn">
+          <FaArrowLeft /> Back
+        </Link>
+
+        <Link to={`/customers/edit/${customer.customerId}`} className="add-btn">
+          <FaEdit /> Edit Customer
+        </Link>
+      </div>
 
       {/* Profile Header */}
 
       <div className="profile-card">
-
         <div className="profile-avatar">
-          RS
+          {customer.customerName?.substring(0, 2).toUpperCase()}
         </div>
 
         <div className="profile-info">
+          <h2>{customer.customerName}</h2>
 
-          <h2>Rahul Sharma</h2>
-
-          <p>Customer Code : CUST001</p>
+          <p>Customer Code : {customer.customerCode}</p>
 
           <div className="profile-meta">
-
             <span>
               <FaPhone />
-              9876543210
+              {customer.mobileNumber}
             </span>
 
             <span>
               <FaEnvelope />
-              rahul@gmail.com
+              {customer.email}
             </span>
 
             <span>
               <FaMapMarkerAlt />
-              Mumbai
+              {customer.city}
             </span>
-
           </div>
 
-        </div>
+          <br />
 
+          <div className="profile-meta">
+            <span>Gender : {customer.gender}</span>
+
+            <span>Age : {customer.age}</span>
+
+            <span>DOB : {customer.dateOfBirth}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Statistics */}
+      {/* Statistics (Dummy until dashboard APIs are connected) */}
 
       <div className="stats-grid">
-
         <div className="stat-card">
-
           <FaEye className="stat-icon" />
-
-          <h3>4</h3>
-
+          <h3>0</h3>
           <p>Prescriptions</p>
-
         </div>
 
         <div className="stat-card">
-
           <FaFileInvoice className="stat-icon" />
-
-          <h3>7</h3>
-
+          <h3>0</h3>
           <p>Total Bills</p>
-
         </div>
 
         <div className="stat-card">
-
           <FaRupeeSign className="stat-icon" />
-
-          <h3>₹24,500</h3>
-
+          <h3>₹0</h3>
           <p>Total Spend</p>
+        </div>
+      </div>
 
+      {/* Customer Information */}
+
+      <div className="details-card">
+        <div className="card-header">
+          <h3>Customer Information</h3>
         </div>
 
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <b>Alternate Phone</b>
+              </td>
+              <td>{customer.alternatePhone}</td>
+            </tr>
+
+            <tr>
+              <td>
+                <b>Address</b>
+              </td>
+              <td>{customer.address}</td>
+            </tr>
+
+            <tr>
+              <td>
+                <b>Reference By</b>
+              </td>
+              <td>{customer.referenceBy}</td>
+            </tr>
+
+            <tr>
+              <td>
+                <b>Status</b>
+              </td>
+              <td>{customer.status ? "Active" : "Inactive"}</td>
+            </tr>
+
+            <tr>
+              <td>
+                <b>Created At</b>
+              </td>
+              <td>{customer.createdAt}</td>
+            </tr>
+
+            <tr>
+              <td>
+                <b>Updated At</b>
+              </td>
+              <td>{customer.updatedAt}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       {/* Recent Prescriptions */}
 
       <div className="details-card">
-
         <div className="card-header">
           <h3>Recent Prescriptions</h3>
         </div>
 
-        <table>
-
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Doctor</th>
-              <th>Lens Type</th>
-              <th>PD</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr>
-              <td>20-Jun-2026</td>
-              <td>Dr. Shah</td>
-              <td>Progressive</td>
-              <td>62</td>
-            </tr>
-
-            <tr>
-              <td>10-Feb-2026</td>
-              <td>Dr. Patel</td>
-              <td>Single Vision</td>
-              <td>60</td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
+        <p>No prescriptions available.</p>
       </div>
 
       {/* Recent Bills */}
 
       <div className="details-card">
-
         <div className="card-header">
           <h3>Recent Bills</h3>
         </div>
 
-        <table>
-
-          <thead>
-            <tr>
-              <th>Bill No</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr>
-              <td>BILL001</td>
-              <td>20-Jun-2026</td>
-              <td>₹5,500</td>
-              <td>
-                <span className="paid">
-                  Paid
-                </span>
-              </td>
-            </tr>
-
-            <tr>
-              <td>BILL002</td>
-              <td>12-Apr-2026</td>
-              <td>₹3,800</td>
-              <td>
-                <span className="due">
-                  Due
-                </span>
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
+        <p>No bills available.</p>
       </div>
-
-      {/* Notes */}
-
-      <div className="details-card">
-
-        <div className="card-header">
-          <h3>Customer Notes</h3>
-        </div>
-
-        <p className="notes">
-          Regular customer. Prefers blue-light protection lenses.
-          Contact before order dispatch.
-        </p>
-
-      </div>
-
     </div>
   );
 }

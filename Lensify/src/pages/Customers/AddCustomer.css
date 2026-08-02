@@ -44,7 +44,7 @@
   padding: 25px;
   margin-bottom: 20px;
 
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .customer-card h3 {
@@ -91,7 +91,7 @@
 .customer-card select:focus,
 .customer-card textarea:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* Buttons */
@@ -142,4 +142,23 @@
   .full-width {
     grid-column: span 1;
   }
+}
+
+.error {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+input:invalid,
+select:invalid,
+textarea:invalid {
+  outline: none;
+}
+
+input.error-input,
+select.error-input,
+textarea.error-input {
+  border: 1px solid #e53935;
 }
