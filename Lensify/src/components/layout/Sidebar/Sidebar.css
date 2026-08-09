@@ -13,7 +13,7 @@
 
 .sidebar-logo {
   padding: 25px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-logo h2 {
@@ -64,4 +64,7 @@
   padding: 12px;
   border-radius: 10px;
   cursor: pointer;
+}
+.sidebar-menu {
+  font-size: 17px;
 }

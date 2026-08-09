@@ -22,6 +22,7 @@ function Login() {
   });
 
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -30,6 +31,19 @@ function Login() {
       [e.target.name]: e.target.value,
     });
   };
+
+  // Decode JWT payload
+  const decodeToken = (token) => {
+    try {
+      const payload = token.split(".")[1];
+
+      return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+    } catch (error) {
+      console.error("Unable to decode token:", error);
+      return null;
+    }
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -38,12 +52,35 @@ function Login() {
 
       const response = await login(formData);
 
-      localStorage.setItem("token", response.data.data.token);
+      const token = response.data.data.token;
+
+      // Save JWT
+      localStorage.setItem("token", token);
+
+      // Decode JWT
+      const decodedToken = decodeToken(token);
+
+      console.log("Decoded JWT:", decodedToken);
+
+      /*
+       * Depending on your backend JWT claims,
+       * username/role may have different names.
+       */
+      const username =
+        decodedToken?.username || decodedToken?.sub || formData.username;
+
+      const role = decodedToken?.roleName || decodedToken?.role || "USER";
+
+      // Save logged-in user details
+      localStorage.setItem("username", username);
+      localStorage.setItem("role", role);
 
       alert("Login Successful");
 
       navigate("/dashboard");
     } catch (error) {
+      console.error(error);
+
       alert(error.response?.data?.message || "Login Failed");
     } finally {
       setLoading(false);
@@ -53,12 +90,10 @@ function Login() {
   return (
     <div className="login-page">
       {/* Background Effects */}
-      <div className="circle circle1"></div>
-      <div className="circle circle2"></div>
-      <div className="circle circle3"></div>
 
       <div className="login-container">
         {/* LEFT SIDE */}
+
         <div className="left-panel">
           <div className="logo-section">
             <div className="logo">👓</div>
@@ -109,12 +144,21 @@ function Login() {
         </div>
 
         {/* RIGHT SIDE */}
+
         <div className="right-panel">
           <motion.div
             className="login-card"
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{
+              opacity: 0,
+              y: 60,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.8,
+            }}
           >
             <h2>Welcome Back 👋</h2>
 
@@ -122,9 +166,9 @@ function Login() {
               Login to continue managing your optical shop
             </p>
 
-            {/* <form> */}
-            {/* temp code */}
             <form onSubmit={handleLogin}>
+              {/* Username */}
+
               <div className="input-group">
                 <label>Username</label>
 
@@ -134,8 +178,11 @@ function Login() {
                   placeholder="Enter Username"
                   value={formData.username}
                   onChange={handleChange}
+                  required
                 />
               </div>
+
+              {/* Password */}
 
               <div className="input-group">
                 <label>Password</label>
@@ -147,6 +194,7 @@ function Login() {
                     placeholder="Enter Password"
                     value={formData.password}
                     onChange={handleChange}
+                    required
                   />
 
                   <span onClick={() => setShowPassword(!showPassword)}>
@@ -154,6 +202,8 @@ function Login() {
                   </span>
                 </div>
               </div>
+
+              {/* Options */}
 
               <div className="options">
                 <label>
@@ -164,7 +214,9 @@ function Login() {
                 <a href="#">Forgot Password?</a>
               </div>
 
-              <button type="submit" className="login-btn">
+              {/* Login Button */}
+
+              <button type="submit" className="login-btn" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
             </form>

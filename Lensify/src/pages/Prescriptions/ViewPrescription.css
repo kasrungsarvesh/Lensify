@@ -1,116 +1,881 @@
+/* =====================================================
+   LENSIFY - VIEW PRESCRIPTION PAGE
+===================================================== */
+
 .view-prescription-page {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+  box-sizing: border-box;
 }
+
+/* =====================================================
+   PAGE HEADER
+===================================================== */
 
 .view-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.view-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.view-title-icon {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: #dbeafe;
+  color: #2563eb;
+
+  font-size: 21px;
 }
 
 .view-header h2 {
-  font-size: 28px;
-  color: #1e293b;
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 30px;
+  font-weight: 700;
+
+  line-height: 1.25;
 }
 
 .view-header p {
+  margin: 6px 0 0;
+
   color: #64748b;
+
+  font-size: 14px;
+  line-height: 1.5;
 }
+
+.view-header p strong {
+  color: #2563eb;
+
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* =====================================================
+   HEADER ACTIONS
+===================================================== */
 
 .header-actions {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 11px;
 }
 
 .print-btn,
 .edit-btn-prescription {
+  height: 44px;
+
+  padding: 0 17px;
+
   border: none;
-  text-decoration: none;
-
-  padding: 12px 18px;
-
   border-radius: 10px;
 
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+
   gap: 8px;
 
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  text-decoration: none;
+
   cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .print-btn {
   background: #10b981;
-  color: white;
+  color: #ffffff;
+
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.print-btn:hover {
+  background: #059669;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.22);
 }
 
 .edit-btn-prescription {
   background: #2563eb;
-  color: white;
+  color: #ffffff;
+
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
+.edit-btn-prescription:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+}
+
+.print-btn:active,
+.edit-btn-prescription:active {
+  transform: translateY(0);
+}
+
+/* =====================================================
+   MAIN CARD
+===================================================== */
+
 .view-card {
-  background: white;
+  width: 100%;
+
+  background: #ffffff;
 
   padding: 24px;
 
-  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  box-sizing: border-box;
+
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.view-card h3 {
-  margin-bottom: 20px;
+.view-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+}
+
+/* =====================================================
+   CARD HEADER
+===================================================== */
+
+.card-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 22px;
+}
+
+.card-heading-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  font-size: 16px;
+}
+
+.card-heading-icon.customer {
+  background: #dbeafe;
   color: #2563eb;
 }
 
-.customer-grid,
-.lens-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 20px;
+.card-heading-icon.eye {
+  background: #ede9fe;
+  color: #7c3aed;
 }
 
-label {
+.card-heading-icon.lens {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.card-heading-icon.remarks-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.card-heading h3 {
+  margin: 0;
+
+  color: #2563eb;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.card-heading p {
+  margin: 4px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* =====================================================
+   CUSTOMER INFORMATION
+===================================================== */
+
+.customer-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 26px;
+}
+
+.detail-item {
+  min-width: 0;
+}
+
+.detail-item label {
   display: block;
+
+  margin-bottom: 8px;
+
   color: #64748b;
-  margin-bottom: 6px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+.detail-item p {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+.detail-item .primary-value {
+  color: #0f172a;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.secondary-value {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.date-value {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.date-value svg {
+  color: #2563eb;
+
+  font-size: 14px;
+}
+
+/* =====================================================
+   EYE POWER TABLE
+===================================================== */
+
+.eye-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border-radius: 11px;
 }
 
 .eye-table {
   width: 100%;
-  border-collapse: collapse;
-}
 
-.eye-table th,
-.eye-table td {
+  border-collapse: separate;
+  border-spacing: 0;
+
+  overflow: hidden;
+
   border: 1px solid #e2e8f0;
-  padding: 14px;
+
+  border-radius: 11px;
 }
 
 .eye-table th {
+  padding: 15px 17px;
+
+  background: #f8fafc;
+
+  color: #475569;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-align: left;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.eye-table td {
+  padding: 16px 17px;
+
+  color: #334155;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  border-bottom: 1px solid #eef2f7;
+}
+
+.eye-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.eye-table tbody tr {
+  transition: background 0.18s ease;
+}
+
+.eye-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.eye-name {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  color: #0f172a;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.eye-dot {
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+}
+
+.eye-dot.right {
+  background: #2563eb;
+}
+
+.eye-dot.left {
+  background: #7c3aed;
+}
+
+/* =====================================================
+   LENS INFORMATION
+===================================================== */
+
+.lens-grid {
+  display: grid;
+
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  gap: 22px;
+}
+
+.lens-grid .detail-item p {
+  min-height: 22px;
+
+  display: flex;
+  align-items: center;
+
+  color: #0f172a;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lens-grid .detail-item:nth-child(3) p,
+.lens-grid .detail-item:nth-child(5) p {
+  display: inline-flex;
+
+  min-height: auto;
+
+  padding: 6px 10px;
+
+  border-radius: 7px;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =====================================================
+   REMARKS
+===================================================== */
+
+.remarks-box {
+  padding: 17px 18px;
+
+  border-left: 4px solid #2563eb;
+
+  border-radius: 9px;
+
   background: #f8fafc;
 }
 
-.remarks {
+.remarks-box p {
+  margin: 0;
+
   color: #475569;
+
+  font-size: 14px;
+
   line-height: 1.8;
+
+  white-space: pre-wrap;
 }
+
+/* =====================================================
+   AUDIT INFORMATION
+===================================================== */
+
+.audit-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: #f8fafc;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+}
+
+.audit-info strong {
+  color: #475569;
+
+  font-family: monospace;
+
+  font-size: 12px;
+}
+
+/* =====================================================
+   BACK BUTTON
+===================================================== */
 
 .back-btn {
   width: fit-content;
 
-  text-decoration: none;
+  min-height: 42px;
 
-  background: #e2e8f0;
-  color: #1e293b;
+  padding: 0 17px;
 
-  padding: 12px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  border: 1px solid #dbe4ef;
 
   border-radius: 10px;
 
+  background: #ffffff;
+
+  color: #475569;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #eff6ff;
+
+  border-color: #bfdbfe;
+
+  color: #2563eb;
+
+  transform: translateX(-3px);
+
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.prescription-loading-page,
+.prescription-error-page {
+  min-height: 400px;
+
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.prescription-loading-card,
+.prescription-error-card {
+  width: min(430px, 90%);
+
+  padding: 36px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+
+  box-sizing: border-box;
+}
+
+.prescription-loading-card .loading-spinner {
+  width: 32px;
+  height: 32px;
+
+  margin-bottom: 16px;
+
+  color: #2563eb;
+
+  animation: prescription-spin 0.8s linear infinite;
+}
+
+.prescription-loading-card h3,
+.prescription-error-card h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.prescription-loading-card p,
+.prescription-error-card p {
+  margin: 9px 0 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+@keyframes prescription-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.error-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #fee2e2;
+
+  color: #dc2626;
+
+  font-size: 23px;
+}
+
+.error-back-btn {
+  margin-top: 21px;
+
+  display: inline-flex;
+  align-items: center;
+
   gap: 8px;
+
+  padding: 11px 17px;
+
+  border-radius: 9px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: background 0.2s ease;
+}
+
+.error-back-btn:hover {
+  background: #1d4ed8;
+}
+
+/* =====================================================
+   RESPONSIVE - TABLET
+===================================================== */
+
+@media (max-width: 1100px) {
+  .customer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lens-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* =====================================================
+   RESPONSIVE - MOBILE
+===================================================== */
+
+@media (max-width: 700px) {
+  .view-prescription-page {
+    gap: 16px;
+  }
+
+  .view-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .view-title {
+    width: 100%;
+  }
+
+  .view-title-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+
+  .view-header h2 {
+    font-size: 24px;
+  }
+
+  .view-header p {
+    font-size: 13px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .print-btn,
+  .edit-btn-prescription {
+    flex: 1;
+  }
+
+  .view-card {
+    padding: 19px;
+  }
+
+  .card-heading h3 {
+    font-size: 18px;
+  }
+
+  .customer-grid {
+    grid-template-columns: 1fr;
+
+    gap: 19px;
+  }
+
+  .lens-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+  }
+
+  .eye-table {
+    min-width: 650px;
+  }
+}
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+  .view-title {
+    gap: 10px;
+  }
+
+  .view-title-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+
+    font-size: 17px;
+  }
+
+  .view-header h2 {
+    font-size: 22px;
+  }
+
+  .view-header p {
+    font-size: 12px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .print-btn,
+  .edit-btn-prescription {
+    width: 100%;
+
+    flex: none;
+  }
+
+  .view-card {
+    padding: 16px;
+
+    border-radius: 12px;
+  }
+
+  .card-heading {
+    margin-bottom: 17px;
+  }
+
+  .card-heading-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .card-heading h3 {
+    font-size: 17px;
+  }
+
+  .lens-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-item p {
+    font-size: 14px;
+  }
+
+  .eye-table th {
+    font-size: 11px;
+  }
+
+  .eye-table td {
+    font-size: 14px;
+  }
+
+  .audit-info {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .back-btn {
+    width: 100%;
+  }
+}
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print {
+  .view-prescription-page {
+    gap: 15px;
+
+    background: #ffffff;
+  }
+
+  .view-header {
+    padding-bottom: 15px;
+
+    border-bottom: 2px solid #0f172a;
+  }
+
+  .header-actions,
+  .back-btn {
+    display: none !important;
+  }
+
+  .view-card {
+    box-shadow: none;
+
+    border: 1px solid #cbd5e1;
+
+    break-inside: avoid;
+  }
+
+  .view-card:hover {
+    box-shadow: none;
+  }
+
+  .audit-info {
+    box-shadow: none;
+  }
 }

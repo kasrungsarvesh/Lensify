@@ -4,13 +4,18 @@ import { Link } from "react-router-dom";
 
 import "./CustomerList.css";
 
-import { getAllCustomers, deleteCustomer } from "../../api/customerApi";
+import {
+  getAllCustomers,
+  searchCustomers,
+  deleteCustomer,
+} from "../../api/customerApi";
 
 import { successToast, errorToast } from "../../utils/toast";
 
 function CustomerList() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     loadCustomers();
@@ -27,6 +32,28 @@ function CustomerList() {
       errorToast("Failed to load customers.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = async (value) => {
+    setSearch(value);
+
+    const keyword = value.trim();
+
+    // If search box is empty, load all customers
+    if (!keyword) {
+      loadCustomers();
+      return;
+    }
+
+    try {
+      const response = await searchCustomers(keyword);
+
+      setCustomers(response.data.data);
+    } catch (error) {
+      console.error(error);
+
+      errorToast("Unable to search customers.");
     }
   };
 
@@ -55,7 +82,8 @@ function CustomerList() {
   }
 
   return (
-    <div className="customer-list-page">
+    // <div className="customer-list-page">
+    <div className="customer-page">
       {/* Header */}
 
       <div className="customer-header">
@@ -76,6 +104,8 @@ function CustomerList() {
       <div className="search-card">
         <input
           type="text"
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search by name, mobile or customer code..."
         />
       </div>

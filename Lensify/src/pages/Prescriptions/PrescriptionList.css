@@ -1,153 +1,743 @@
+/* =====================================================
+   PRESCRIPTION PAGE
+===================================================== */
+
 .prescription-page {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+  box-sizing: border-box;
 }
 
-/* Header */
+/* =====================================================
+   PAGE HEADER
+===================================================== */
 
 .prescription-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 20px;
 }
 
-.prescription-header h2 {
-  font-size: 28px;
-  color: #1e293b;
-}
-
-.prescription-header p {
-  color: #64748b;
-}
-
-/* Add Button */
-
-.add-prescription-btn {
+.prescription-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-
-  background: #2563eb;
-  color: white;
-
-  text-decoration: none;
-
-  padding: 12px 18px;
-
-  border-radius: 10px;
-
-  font-weight: 600;
+  gap: 14px;
 }
 
-.add-prescription-btn:hover {
-  background: #1d4ed8;
-}
+.title-icon {
+  width: 52px;
+  height: 52px;
 
-/* Search */
-
-.search-card {
-  background: white;
-  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   border-radius: 14px;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+
+  color: #2563eb;
+
+  font-size: 21px;
+
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1);
 }
 
-.search-card input {
+.prescription-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 30px;
+  font-weight: 750;
+
+  letter-spacing: -0.5px;
+}
+
+.prescription-header p {
+  margin: 5px 0 0;
+
+  color: #64748b;
+
+  font-size: 15px;
+}
+
+/* =====================================================
+   ADD PRESCRIPTION BUTTON
+===================================================== */
+
+.add-prescription-btn {
+  min-height: 46px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 0 20px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  box-shadow: 0 7px 18px rgba(37, 99, 235, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.add-prescription-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 11px 25px rgba(37, 99, 235, 0.28);
+}
+
+.add-prescription-btn:active {
+  transform: translateY(0);
+}
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.search-card {
   width: 100%;
-  padding: 12px;
 
-  border: 1px solid #dbe2ea;
-  border-radius: 10px;
+  min-height: 74px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 13px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
 }
 
-/* Statistics */
+.search-wrapper {
+  width: 100%;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 0 14px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #dbe3ee;
+
+  border-radius: 11px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.search-wrapper:focus-within {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
+}
+
+.search-wrapper svg {
+  color: #64748b;
+  font-size: 16px;
+}
+
+.search-wrapper input {
+  width: 100%;
+  height: 44px;
+
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #0f172a;
+
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.search-wrapper input::placeholder {
+  color: #94a3b8;
+}
+
+/* =====================================================
+   CLEAR SEARCH
+===================================================== */
+
+.clear-search {
+  width: 25px;
+  height: 25px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f1f5f9;
+
+  color: #64748b;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.clear-search:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* =====================================================
+   REFRESH BUTTON
+===================================================== */
+
+.refresh-btn {
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #dbe3ee;
+
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+
+  transform: rotate(12deg);
+}
+
+/* =====================================================
+   STATISTICS
+===================================================== */
 
 .prescription-stats {
   display: grid;
-  grid-template-columns: repeat(2,1fr);
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 20px;
 }
 
 .stat-box {
-  background: white;
+  position: relative;
+
+  min-height: 105px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
 
   padding: 20px;
 
-  border-radius: 14px;
+  overflow: hidden;
 
-  display: flex;
-  gap: 15px;
-  align-items: center;
+  background: #ffffff;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  border: 1px solid #e2e8f0;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.stat-box svg {
-  font-size: 28px;
+.stat-box::after {
+  content: "";
+
+  position: absolute;
+
+  width: 110px;
+  height: 110px;
+
+  right: -35px;
+  top: -40px;
+
+  border-radius: 50%;
+
+  background: rgba(37, 99, 235, 0.055);
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  font-size: 20px;
+}
+
+.stat-icon.blue {
+  background: #dbeafe;
   color: #2563eb;
 }
 
-.stat-box h3 {
-  font-size: 24px;
+.stat-icon.green {
+  background: #dcfce7;
+  color: #16a34a;
 }
 
-/* Table */
+.stat-label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #64748b;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stat-box h3 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 28px;
+  font-weight: 750;
+}
+
+.stat-box small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+}
+
+/* =====================================================
+   TABLE CARD
+===================================================== */
 
 .table-card {
-  background: white;
+  width: 100%;
 
-  border-radius: 14px;
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 17px;
 
   overflow: hidden;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
 }
 
-table {
+/* =====================================================
+   TABLE HEADER
+===================================================== */
+
+.table-header {
+  min-height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 16px 22px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-header h3 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.table-header p {
+  margin: 5px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+}
+
+.record-count {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 11px;
+
+  border-radius: 20px;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* =====================================================
+   TABLE WRAPPER
+===================================================== */
+
+.table-wrapper {
   width: 100%;
-  border-collapse: collapse;
+
+  overflow-x: auto;
 }
 
-thead {
+.table-wrapper::-webkit-scrollbar {
+  height: 7px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
   background: #f8fafc;
 }
 
-th {
-  padding: 16px;
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.table-card table {
+  width: 100%;
+
+  min-width: 1000px;
+
+  border-collapse: collapse;
+}
+
+.table-card thead {
+  background: #f8fafc;
+}
+
+.table-card th {
+  padding: 14px 17px;
+
+  color: #64748b;
+
   text-align: left;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.045em;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  white-space: nowrap;
 }
 
-td {
-  padding: 16px;
-  border-top: 1px solid #e2e8f0;
+.table-card td {
+  padding: 16px 17px;
+
+  color: #475569;
+
+  font-size: 13px;
+
+  border-bottom: 1px solid #edf2f7;
+
+  vertical-align: middle;
 }
 
-tbody tr:hover {
+.table-card tbody tr {
+  transition: background 0.18s ease;
+}
+
+.table-card tbody tr:hover {
   background: #f8fbff;
 }
 
-/* Actions */
+.table-card tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =====================================================
+   PRESCRIPTION ID
+===================================================== */
+
+.prescription-id {
+  display: inline-flex;
+
+  padding: 6px 9px;
+
+  border-radius: 7px;
+
+  background: #f1f5f9;
+
+  color: #334155;
+
+  font-family: monospace;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* =====================================================
+   CUSTOMER CELL
+===================================================== */
+
+.customer-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.customer-avatar {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+
+  color: #2563eb;
+
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.customer-cell strong {
+  display: block;
+
+  color: #0f172a;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.customer-cell small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+}
+
+/* =====================================================
+   DOCTOR
+===================================================== */
+
+.doctor-name {
+  color: #475569;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* =====================================================
+   EYE POWER
+===================================================== */
+
+.eye-power {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.eye-power span {
+  color: #64748b;
+
+  font-size: 11px;
+}
+
+.eye-power span:first-child {
+  color: #2563eb;
+
+  font-weight: 700;
+}
+
+/* =====================================================
+   LENS BADGE
+===================================================== */
+
+.lens-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 9px;
+
+  border-radius: 7px;
+
+  background: #f0fdf4;
+
+  color: #15803d;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.not-available {
+  color: #cbd5e1;
+}
+
+/* =====================================================
+   DATE
+===================================================== */
+
+.date-cell {
+  color: #475569;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  background: #dcfce7;
+
+  color: #15803d;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.status-badge::before {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* =====================================================
+   ACTION BUTTONS
+===================================================== */
 
 .action-buttons {
   display: flex;
-  gap: 8px;
-}
-
-.view-btn,
-.edit-btn {
-  width: 35px;
-  height: 35px;
-
-  display: flex;
-  justify-content: center;
   align-items: center;
 
-  border-radius: 8px;
+  gap: 7px;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 9px;
 
   text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
 }
 
 .view-btn {
@@ -155,7 +745,249 @@ tbody tr:hover {
   color: #2563eb;
 }
 
+.view-btn:hover {
+  background: #bfdbfe;
+
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.14);
+}
+
 .edit-btn {
   background: #fef3c7;
   color: #d97706;
+}
+
+.edit-btn:hover {
+  background: #fde68a;
+
+  box-shadow: 0 5px 12px rgba(217, 119, 6, 0.14);
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+
+  box-shadow: 0 5px 12px rgba(220, 38, 38, 0.14);
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state {
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 13px;
+
+  border-radius: 16px;
+
+  background: #f1f5f9;
+
+  color: #94a3b8;
+
+  font-size: 22px;
+}
+
+.empty-state h3 {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 16px;
+}
+
+.empty-state p {
+  margin: 7px 0 16px;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+}
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+.pagination {
+  min-height: 60px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 20px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.pagination > span {
+  color: #64748b;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pagination div {
+  display: flex;
+
+  gap: 7px;
+}
+
+.pagination button {
+  min-width: 70px;
+
+  padding: 8px 12px;
+
+  border: 1px solid #dbe4ef;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  border-color: #bfdbfe;
+}
+
+.pagination button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.table-loading {
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+
+  margin-bottom: 12px;
+
+  border: 3px solid #dbeafe;
+
+  border-top-color: #2563eb;
+
+  border-radius: 50%;
+
+  animation: prescriptionSpin 0.8s linear infinite;
+}
+
+@keyframes prescriptionSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 950px) {
+  .prescription-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .prescription-header h2 {
+    font-size: 27px;
+  }
+}
+
+@media (max-width: 700px) {
+  .prescription-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .add-prescription-btn {
+    width: 100%;
+  }
+
+  .search-card {
+    padding: 10px;
+  }
+
+  .table-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 500px) {
+  .prescription-header h2 {
+    font-size: 24px;
+  }
+
+  .prescription-header p {
+    font-size: 13px;
+  }
+
+  .title-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .stat-box {
+    padding: 16px;
+  }
+
+  .stat-box h3 {
+    font-size: 24px;
+  }
 }

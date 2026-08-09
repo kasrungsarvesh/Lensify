@@ -162,3 +162,14 @@ select.error-input,
 textarea.error-input {
   border: 1px solid #e53935;
 }
+.customer-table th {
+  font-size: 14px;
+}
+
+.customer-table td {
+  font-size: 16px;
+}
+
+.status-badge {
+  font-size: 14px;
+}
