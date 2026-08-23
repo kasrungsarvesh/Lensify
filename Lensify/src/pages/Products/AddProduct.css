@@ -42,7 +42,7 @@
 
   border-radius: 16px;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .product-card h3 {
@@ -52,7 +52,7 @@
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
 
@@ -96,4 +96,25 @@
   gap: 8px;
 
   cursor: pointer;
+}
+.input-error {
+  border: 1px solid #dc3545 !important;
+}
+
+.validation-error {
+  display: block;
+  margin-top: 5px;
+  color: #dc3545;
+  font-size: 13px;
+}
+.error-message {
+  display: block;
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

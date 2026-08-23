@@ -37,12 +37,12 @@
   background: white;
   padding: 24px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
 
@@ -118,4 +118,94 @@ td {
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
+}
+/* =========================
+   CUSTOMER SEARCH
+========================= */
+
+.customer-search-container {
+  position: relative;
+}
+
+.customer-search-container label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.required {
+  color: red;
+}
+
+.customer-search-container input {
+  width: 100%;
+}
+
+/* =========================
+   CUSTOMER RESULTS
+========================= */
+
+.customer-results {
+  position: absolute;
+  top: 78px;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.customer-result {
+  padding: 12px 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-bottom: 1px solid #eee;
+}
+
+.customer-result:hover {
+  background: #f2f6ff;
+}
+
+.customer-result strong {
+  color: #1d3557;
+  font-size: 14px;
+}
+
+.customer-result small {
+  color: #777;
+  font-size: 12px;
+}
+
+.customer-result-message {
+  padding: 15px;
+  color: #777;
+  font-size: 14px;
+}
+
+/* =========================
+   SELECTED CUSTOMER
+========================= */
+
+.selected-customer {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f1f7ff;
+  border-radius: 6px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.selected-customer strong {
+  color: #1d3557;
+}
+
+.selected-customer span {
+  color: #666;
+  font-size: 13px;
 }
