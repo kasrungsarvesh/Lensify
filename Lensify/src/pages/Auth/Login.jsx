@@ -17,9 +17,13 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
-    username: "",
+    username: localStorage.getItem("rememberedUsername") || "",
     password: "",
   });
+
+  const [rememberMe, setRememberMe] = useState(
+    localStorage.getItem("rememberMe") === "true",
+  );
 
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +34,17 @@ function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleRememberMeChange = (e) => {
+    const checked = e.target.checked;
+
+    setRememberMe(checked);
+
+    if (!checked) {
+      localStorage.removeItem("rememberedUsername");
+      localStorage.removeItem("rememberMe");
+    }
   };
 
   // Decode JWT payload
@@ -47,12 +62,29 @@ function Login() {
   const handleLogin = async (event) => {
     event.preventDefault();
 
+    if (!formData.username.trim()) {
+      alert("Please enter username.");
+      return;
+    }
+
+    if (!formData.password) {
+      alert("Please enter password.");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const response = await login(formData);
+      const response = await login({
+        username: formData.username.trim(),
+        password: formData.password,
+      });
 
       const token = response.data.data.token;
+
+      if (!token) {
+        throw new Error("Authentication token was not received.");
+      }
 
       // Save JWT
       localStorage.setItem("token", token);
@@ -62,10 +94,6 @@ function Login() {
 
       console.log("Decoded JWT:", decodedToken);
 
-      /*
-       * Depending on your backend JWT claims,
-       * username/role may have different names.
-       */
       const username =
         decodedToken?.username || decodedToken?.sub || formData.username;
 
@@ -75,13 +103,22 @@ function Login() {
       localStorage.setItem("username", username);
       localStorage.setItem("role", role);
 
+      // Remember username only
+      if (rememberMe) {
+        localStorage.setItem("rememberedUsername", username);
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        localStorage.removeItem("rememberedUsername");
+        localStorage.removeItem("rememberMe");
+      }
+
       alert("Login Successful");
 
       navigate("/dashboard");
     } catch (error) {
-      console.error(error);
+      console.error("Login Error:", error);
 
-      alert(error.response?.data?.message || "Login Failed");
+      alert(error.response?.data?.message || error.message || "Login Failed");
     } finally {
       setLoading(false);
     }
@@ -89,8 +126,6 @@ function Login() {
 
   return (
     <div className="login-page">
-      {/* Background Effects */}
-
       <div className="login-container">
         {/* LEFT SIDE */}
 
@@ -178,6 +213,7 @@ function Login() {
                   placeholder="Enter Username"
                   value={formData.username}
                   onChange={handleChange}
+                  autoComplete="username"
                   required
                 />
               </div>
@@ -194,6 +230,7 @@ function Login() {
                     placeholder="Enter Password"
                     value={formData.password}
                     onChange={handleChange}
+                    autoComplete="current-password"
                     required
                   />
 
@@ -207,8 +244,13 @@ function Login() {
 
               <div className="options">
                 <label>
-                  <input type="checkbox" />
-                  Remember Me
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={handleRememberMeChange}
+                  />
+
+                  <span>Remember Me</span>
                 </label>
 
                 <a href="#">Forgot Password?</a>

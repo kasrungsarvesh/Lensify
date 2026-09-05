@@ -1,0 +1,976 @@
+/* =========================================================
+   LENSIFY - LENS FORM / VIEW
+   Shared by:
+   AddLens.jsx
+   EditLens.jsx
+   ViewLens.jsx
+   ========================================================= */
+
+/* =========================================================
+   COMMON PAGE
+   ========================================================= */
+
+.add-lens-page,
+.edit-lens-page,
+.view-lens-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 32px 40px;
+  background: #f5f7fb;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.add-lens-header,
+.edit-lens-header,
+.view-lens-header {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.add-lens-header h1,
+.edit-lens-header h1,
+.view-lens-header h1 {
+  margin: 0 0 5px;
+
+  color: #172033;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.add-lens-header p,
+.edit-lens-header p,
+.view-lens-header p {
+  margin: 0;
+
+  color: #7b8799;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   BACK BUTTON
+   IMPORTANT:
+   Fixed width removed so "Back to Lenses" stays horizontal.
+   ========================================================= */
+
+.back-lens-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-width: max-content;
+  width: auto;
+  height: 38px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dfe5ee;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #526075;
+
+  text-decoration: none;
+  white-space: nowrap;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.back-lens-btn:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+  transform: translateX(-2px);
+}
+
+/* =========================================================
+   ADD / EDIT CARD
+   ========================================================= */
+
+.add-lens-card,
+.edit-lens-card {
+  width: 100%;
+  max-width: 1120px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e3e8f0;
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 12px rgba(23, 32, 51, 0.03),
+    0 10px 30px rgba(23, 32, 51, 0.04);
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.add-lens-card-header,
+.edit-lens-card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  padding: 24px 30px;
+
+  border-bottom: 1px solid #edf0f5;
+}
+
+.add-lens-icon,
+.edit-lens-icon {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-size: 20px;
+}
+
+.add-lens-card-header h2,
+.edit-lens-card-header h2 {
+  margin: 0 0 4px;
+
+  color: #1b2638;
+
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.add-lens-card-header p,
+.edit-lens-card-header p {
+  margin: 0;
+
+  color: #8a94a6;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.add-lens-form,
+.edit-lens-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  column-gap: 26px;
+  row-gap: 22px;
+
+  padding: 30px;
+}
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.lens-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  min-width: 0;
+}
+
+.lens-form-group label {
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.lens-form-group label::after {
+  color: #dc2626;
+}
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.lens-form-group input,
+.lens-form-group select {
+  width: 100%;
+  height: 44px;
+
+  padding: 0 13px;
+
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #253044;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.lens-form-group input::placeholder {
+  color: #a0a9b8;
+}
+
+.lens-form-group input:hover,
+.lens-form-group select:hover {
+  border-color: #c4ccd8;
+}
+
+.lens-form-group input:focus,
+.lens-form-group select:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   NUMBER INPUT
+   ========================================================= */
+
+.lens-form-group input[type="number"] {
+  appearance: textfield;
+}
+
+.lens-form-group input[type="number"]::-webkit-inner-spin-button,
+.lens-form-group input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+}
+
+/* =========================================================
+   POWER HELP TEXT
+   ========================================================= */
+
+.lens-form-group small {
+  margin-top: -2px;
+
+  color: #8a94a6;
+
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   PRICE FIELD
+   IMPORTANT:
+   No ::before is used here to prevent duplicate ₹ symbols.
+   ========================================================= */
+
+.lens-price-input {
+  position: relative;
+  width: 100%;
+}
+
+.lens-price-input input {
+  padding-left: 34px;
+}
+
+.lens-price-input::before {
+  content: "₹";
+
+  position: absolute;
+  top: 50%;
+  left: 13px;
+
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #667085;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   FULL WIDTH FORM GROUP
+   ========================================================= */
+
+.lens-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* =========================================================
+   STATUS TOGGLE
+   ========================================================= */
+
+.lens-status-toggle {
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  cursor: pointer;
+}
+
+.lens-status-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-slider {
+  position: relative;
+
+  width: 42px;
+  height: 23px;
+
+  flex-shrink: 0;
+
+  border-radius: 30px;
+
+  background: #cbd2dc;
+
+  transition: background 0.25s ease;
+}
+
+.toggle-slider::after {
+  content: "";
+
+  position: absolute;
+
+  top: 3px;
+  left: 3px;
+
+  width: 17px;
+  height: 17px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+
+  transition: left 0.25s ease;
+}
+
+.lens-status-toggle input:checked + .toggle-slider {
+  background: #2563eb;
+}
+
+.lens-status-toggle input:checked + .toggle-slider::after {
+  left: 22px;
+}
+
+.lens-status-toggle span:last-child {
+  color: #475467;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
+
+.add-lens-actions,
+.edit-lens-actions {
+  grid-column: 1 / -1;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 4px;
+  padding-top: 22px;
+
+  border-top: 1px solid #edf0f5;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.cancel-lens-btn,
+.save-lens-btn {
+  min-width: 110px;
+  height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cancel-lens-btn {
+  border: 1px solid #d8dee8;
+
+  background: #ffffff;
+  color: #475467;
+}
+
+.cancel-lens-btn:hover {
+  border-color: #c4ccd8;
+  background: #f8fafc;
+}
+
+.save-lens-btn {
+  border: 1px solid #2563eb;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.16);
+}
+
+.save-lens-btn:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
+}
+
+.save-lens-btn:disabled,
+.cancel-lens-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
+   EDIT LOADING
+   ========================================================= */
+
+.edit-lens-loading {
+  width: 100%;
+  max-width: 1120px;
+  min-height: 300px;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #7b8799;
+
+  font-size: 14px;
+}
+
+/* =========================================================
+   VIEW LENS
+   ========================================================= */
+
+.view-lens-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.view-lens-header {
+  justify-content: space-between;
+}
+
+.view-lens-header > div {
+  min-width: 0;
+  flex: 1;
+}
+
+/* =========================================================
+   VIEW EDIT BUTTON
+   ========================================================= */
+
+.edit-lens-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  height: 40px;
+
+  padding: 0 16px;
+
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.edit-lens-page-btn:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.18);
+}
+
+/* =========================================================
+   VIEW CARD
+   ========================================================= */
+
+.view-lens-card {
+  width: 100%;
+  max-width: 1120px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e3e8f0;
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 12px rgba(23, 32, 51, 0.03),
+    0 10px 30px rgba(23, 32, 51, 0.04);
+}
+
+/* =========================================================
+   VIEW PROFILE
+   ========================================================= */
+
+.view-lens-profile {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 26px 30px;
+
+  border-bottom: 1px solid #edf0f5;
+}
+
+.view-lens-icon {
+  width: 62px;
+  height: 62px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-size: 25px;
+}
+
+.view-lens-title {
+  flex: 1;
+}
+
+.view-lens-title h2 {
+  margin: 0 0 6px;
+
+  color: #172033;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.view-lens-title p {
+  margin: 0;
+
+  color: #8a94a6;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   VIEW STATUS
+   ========================================================= */
+
+.lens-detail-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 65px;
+
+  padding: 6px 12px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.lens-detail-status.active {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.lens-detail-status.inactive {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* =========================================================
+   DETAILS GRID
+   ========================================================= */
+
+.lens-details-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  padding: 8px 22px 24px;
+}
+
+.lens-detail-item {
+  min-height: 78px;
+
+  padding: 17px 14px;
+
+  border-bottom: 1px solid #edf0f5;
+}
+
+.lens-detail-item span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #8993a5;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.lens-detail-item strong {
+  display: block;
+
+  color: #273247;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lens-detail-item .detail-price {
+  color: #2563eb;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   SYSTEM INFORMATION
+   ========================================================= */
+
+.lens-system-section {
+  margin: 0 24px 24px;
+
+  padding: 20px;
+
+  border: 1px solid #e7ebf1;
+  border-radius: 10px;
+
+  background: #f8fafc;
+}
+
+.lens-system-header {
+  margin-bottom: 15px;
+}
+
+.lens-system-header h3 {
+  margin: 0;
+
+  color: #344054;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.lens-system-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.lens-system-grid div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.lens-system-grid span {
+  color: #8993a5;
+
+  font-size: 11px;
+}
+
+.lens-system-grid strong {
+  color: #475467;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   VIEW LOADING / EMPTY
+   ========================================================= */
+
+.view-lens-loading,
+.view-lens-empty {
+  min-height: 320px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #7b8799;
+
+  font-size: 14px;
+}
+
+.view-lens-empty {
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* =========================================================
+   BACK TO LENSES
+   ========================================================= */
+
+.back-lenses-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 40px;
+
+  padding: 0 16px;
+
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: background 0.2s ease;
+}
+
+.back-lenses-btn:hover {
+  background: #1d4ed8;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .add-lens-page,
+  .edit-lens-page,
+  .view-lens-page {
+    padding: 28px;
+  }
+
+  .add-lens-form,
+  .edit-lens-form {
+    column-gap: 20px;
+  }
+
+  .lens-details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .add-lens-page,
+  .edit-lens-page,
+  .view-lens-page {
+    padding: 20px;
+  }
+
+  .add-lens-header,
+  .edit-lens-header,
+  .view-lens-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .add-lens-header h1,
+  .edit-lens-header h1,
+  .view-lens-header h1 {
+    font-size: 24px;
+  }
+
+  .add-lens-form,
+  .edit-lens-form {
+    grid-template-columns: 1fr;
+
+    padding: 22px;
+  }
+
+  .lens-form-group.full-width {
+    grid-column: auto;
+  }
+
+  .add-lens-actions,
+  .edit-lens-actions {
+    grid-column: auto;
+
+    flex-direction: row;
+  }
+
+  .view-lens-header {
+    justify-content: flex-start;
+  }
+
+  .edit-lens-page-btn {
+    margin-left: auto;
+  }
+
+  .view-lens-profile {
+    padding: 22px;
+  }
+
+  .lens-details-grid {
+    grid-template-columns: 1fr;
+
+    padding: 8px 15px 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .add-lens-page,
+  .edit-lens-page,
+  .view-lens-page {
+    padding: 15px;
+  }
+
+  .add-lens-header,
+  .edit-lens-header,
+  .view-lens-header {
+    gap: 12px;
+  }
+
+  .back-lens-btn {
+    height: 36px;
+    padding: 0 11px;
+
+    font-size: 12px;
+  }
+
+  .add-lens-header h1,
+  .edit-lens-header h1,
+  .view-lens-header h1 {
+    font-size: 22px;
+  }
+
+  .add-lens-card-header,
+  .edit-lens-card-header {
+    padding: 20px;
+  }
+
+  .add-lens-form,
+  .edit-lens-form {
+    padding: 20px;
+  }
+
+  .add-lens-actions,
+  .edit-lens-actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancel-lens-btn,
+  .save-lens-btn {
+    width: 100%;
+  }
+
+  .view-lens-profile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .edit-lens-page-btn {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .lens-system-section {
+    margin: 0 15px 20px;
+  }
+
+  .lens-system-grid {
+    grid-template-columns: 1fr;
+  }
+}

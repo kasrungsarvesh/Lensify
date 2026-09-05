@@ -16,14 +16,12 @@ import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 import { useNavigate } from "react-router-dom";
 
-
-
 function Sidebar() {
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const handleLogout = () => {
-  navigate("/");
-};
+  const handleLogout = () => {
+    navigate("/");
+  };
 
   return (
     <aside className="sidebar">
@@ -32,15 +30,12 @@ const handleLogout = () => {
       </div>
 
       <nav className="sidebar-menu">
-
         <NavLink to="/dashboard" className="menu-item">
           <FaTachometerAlt />
           <span>Dashboard</span>
         </NavLink>
 
-        <div className="menu-title">
-          Customer Management
-        </div>
+        <div className="menu-title">Customer Management</div>
 
         <NavLink to="/customers" className="menu-item">
           <FaUsers />
@@ -57,18 +52,14 @@ const handleLogout = () => {
           <span>Appointments</span>
         </NavLink>
 
-        <div className="menu-title">
-          Billing
-        </div>
+        <div className="menu-title">Billing</div>
 
         <NavLink to="/receipts" className="menu-item">
           <FaReceipt />
           <span>Receipts</span>
         </NavLink>
 
-        <div className="menu-title">
-          Inventory
-        </div>
+        <div className="menu-title">Inventory</div>
 
         <NavLink to="/products" className="menu-item">
           <FaBoxOpen />
@@ -80,9 +71,12 @@ const handleLogout = () => {
           <span>Categories</span>
         </NavLink>
 
-        <div className="menu-title">
-          Administration
-        </div>
+        <NavLink to="/lenses" className="menu-item">
+          <FaBoxOpen />
+          <span>Lenses</span>
+        </NavLink>
+
+        <div className="menu-title">Administration</div>
 
         <NavLink to="/users" className="menu-item">
           <FaUserShield />
@@ -110,7 +104,6 @@ const handleLogout = () => {
           <FaSignOutAlt />
           Logout
         </button>
-        
       </div>
     </aside>
   );

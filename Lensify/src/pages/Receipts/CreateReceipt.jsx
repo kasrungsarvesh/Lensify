@@ -1,40 +1,102 @@
 import { useEffect, useState } from "react";
-import { FaPlus, FaTrash, FaFileInvoiceDollar } from "react-icons/fa";
+import {
+  FaPlus,
+  FaTrash,
+  FaFileInvoiceDollar,
+  FaSearch,
+  FaTimes,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 import api from "../../api/axios";
 import "./CreateReceipt.css";
 
 function CreateReceipt() {
+  const navigate = useNavigate();
+
+  // =========================================================
+  // PRODUCTS
+  // =========================================================
+
   const [products, setProducts] = useState([]);
-  const [productSearch, setProductSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showProductResults, setShowProductResults] = useState(false);
-  // =========================
+
+  const [productSearches, setProductSearches] = useState([""]);
+  const [productResults, setProductResults] = useState([[]]);
+  const [productSearching, setProductSearching] = useState([false]);
+
+  // =========================================================
+  // LENSES
+  // =========================================================
+
+  const [lenses, setLenses] = useState([]);
+
+  const [lensSearches, setLensSearches] = useState([""]);
+  const [lensResults, setLensResults] = useState([[]]);
+  const [lensSearching, setLensSearching] = useState([false]);
+
+  // =========================================================
   // CUSTOMER
-  // =========================
+  // =========================================================
 
   const [customerSearch, setCustomerSearch] = useState("");
   const [customers, setCustomers] = useState([]);
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+
   const [showCustomerResults, setShowCustomerResults] = useState(false);
   const [customerLoading, setCustomerLoading] = useState(false);
 
-  // CALCULATION STATE
+  // =========================================================
+  // BILL
+  // =========================================================
+
   const [discount, setDiscount] = useState(0);
   const [tax, setTax] = useState(0);
+
+  // =========================================================
+  // PAYMENT
+  // =========================================================
+
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [paidAmount, setPaidAmount] = useState(0);
 
-  // =========================
-  // ITEMS
-  // =========================
+  // =========================================================
+  // GENERATING
+  // =========================================================
 
-  const [items, setItems] = useState([
+  const [generating, setGenerating] = useState(false);
+
+  // =========================================================
+  // PRODUCT ITEMS
+  // =========================================================
+
+  const [productItems, setProductItems] = useState([
     {
+      productId: null,
       product: "",
       quantity: 1,
       price: 0,
       total: 0,
     },
   ]);
+
+  // =========================================================
+  // LENS ITEMS
+  // =========================================================
+
+  const [lensItems, setLensItems] = useState([
+    {
+      lensId: null,
+      lens: "",
+      quantity: 1,
+      price: 0,
+      total: 0,
+    },
+  ]);
+
+  // =========================================================
+  // FETCH PRODUCTS
+  // =========================================================
 
   const fetchProducts = async () => {
     try {
@@ -51,30 +113,49 @@ function CreateReceipt() {
     }
   };
 
+  // =========================================================
+  // FETCH LENSES
+  // =========================================================
+
+  const fetchLenses = async () => {
+    try {
+      const response = await api.get("/lenses");
+
+      console.log("Lens Response:", response.data);
+
+      const allLenses = response.data?.data || [];
+
+      // Only active lenses are available for new receipts
+      const activeLenses = allLenses.filter((lens) => lens.status === true);
+
+      setLenses(activeLenses);
+    } catch (error) {
+      console.error("Fetch lenses error:", error);
+      console.error("Backend error:", error.response?.data);
+
+      alert(error.response?.data?.message || "Unable to fetch lenses.");
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchLenses();
   }, []);
 
-  const filteredProducts = products.filter((product) => {
-    const keyword = productSearch.toLowerCase();
-
-    return (
-      product.productName?.toLowerCase().includes(keyword) ||
-      product.brand?.toLowerCase().includes(keyword) ||
-      product.barcode?.toLowerCase().includes(keyword) ||
-      product.modelNumber?.toLowerCase().includes(keyword)
-    );
-  });
-
-  // =========================
-  // SEARCH CUSTOMERS
-  // =========================
+  // =========================================================
+  // CUSTOMER SEARCH
+  // Same behavior as AddPrescription
+  // =========================================================
 
   useEffect(() => {
-    const searchCustomers = async () => {
+    const searchCustomerData = async () => {
       if (!customerSearch.trim()) {
         setCustomers([]);
         setShowCustomerResults(false);
+        return;
+      }
+
+      if (selectedCustomer) {
         return;
       }
 
@@ -82,7 +163,9 @@ function CreateReceipt() {
         setCustomerLoading(true);
 
         const response = await api.get(
-          `/customer/search?keyword=${encodeURIComponent(customerSearch)}`,
+          `/customer/search?keyword=${encodeURIComponent(
+            customerSearch.trim(),
+          )}`,
         );
 
         console.log("Customer Search Response:", response.data);
@@ -91,6 +174,7 @@ function CreateReceipt() {
         setShowCustomerResults(true);
       } catch (error) {
         console.error("Customer search error:", error);
+
         console.error("Backend error:", error.response?.data);
 
         setCustomers([]);
@@ -99,82 +183,458 @@ function CreateReceipt() {
       }
     };
 
-    const timer = setTimeout(() => {
-      searchCustomers();
-    }, 300);
+    const timer = setTimeout(searchCustomerData, 350);
 
     return () => clearTimeout(timer);
-  }, [customerSearch]);
+  }, [customerSearch, selectedCustomer]);
 
-  // =========================
+  // =========================================================
+  // PRODUCT AUTOCOMPLETE
+  // =========================================================
+
+  useEffect(() => {
+    const timers = [];
+
+    productSearches.forEach((search, index) => {
+      if (!search?.trim()) {
+        setProductResults((previous) => {
+          const updated = [...previous];
+          updated[index] = [];
+          return updated;
+        });
+
+        setProductSearching((previous) => {
+          const updated = [...previous];
+          updated[index] = false;
+          return updated;
+        });
+
+        return;
+      }
+
+      setProductSearching((previous) => {
+        const updated = [...previous];
+        updated[index] = true;
+        return updated;
+      });
+
+      const timer = setTimeout(() => {
+        const keyword = search.trim().toLowerCase();
+
+        const results = products.filter((product) => {
+          return (
+            product.productName?.toLowerCase().includes(keyword) ||
+            product.brand?.toLowerCase().includes(keyword) ||
+            product.barcode?.toLowerCase().includes(keyword) ||
+            product.modelNumber?.toLowerCase().includes(keyword)
+          );
+        });
+
+        setProductResults((previous) => {
+          const updated = [...previous];
+          updated[index] = results;
+          return updated;
+        });
+
+        setProductSearching((previous) => {
+          const updated = [...previous];
+          updated[index] = false;
+          return updated;
+        });
+      }, 350);
+
+      timers.push(timer);
+    });
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+    };
+  }, [productSearches, products]);
+
+  // =========================================================
+  // LENS AUTOCOMPLETE
+  // =========================================================
+
+  useEffect(() => {
+    const timers = [];
+
+    lensSearches.forEach((search, index) => {
+      if (!search?.trim()) {
+        setLensResults((previous) => {
+          const updated = [...previous];
+          updated[index] = [];
+          return updated;
+        });
+
+        setLensSearching((previous) => {
+          const updated = [...previous];
+          updated[index] = false;
+          return updated;
+        });
+
+        return;
+      }
+
+      setLensSearching((previous) => {
+        const updated = [...previous];
+        updated[index] = true;
+        return updated;
+      });
+
+      const timer = setTimeout(() => {
+        const keyword = search.trim().toLowerCase();
+
+        const results = lenses.filter((lens) => {
+          // Never show inactive lenses in receipt selection
+          if (lens.status !== true) {
+            return false;
+          }
+
+          return (
+            lens.brand?.toLowerCase().includes(keyword) ||
+            lens.lensType?.toLowerCase().includes(keyword) ||
+            lens.lensMaterial?.toLowerCase().includes(keyword) ||
+            String(lens.power ?? "")
+              .toLowerCase()
+              .includes(keyword)
+          );
+        });
+        setLensResults((previous) => {
+          const updated = [...previous];
+          updated[index] = results;
+          return updated;
+        });
+
+        setLensSearching((previous) => {
+          const updated = [...previous];
+          updated[index] = false;
+          return updated;
+        });
+      }, 350);
+
+      timers.push(timer);
+    });
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+    };
+  }, [lensSearches, lenses]);
+
+  // =========================================================
   // SELECT CUSTOMER
-  // =========================
+  // =========================================================
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
 
-    setCustomerSearch(customer.customerName);
-
+    setCustomerSearch("");
+    setCustomers([]);
     setShowCustomerResults(false);
 
     console.log("Selected Customer:", customer);
   };
 
-  // =========================
-  // ADD ITEM
-  // =========================
+  // =========================================================
+  // REMOVE CUSTOMER
+  // =========================================================
 
-  const addItem = () => {
-    setItems([
-      ...items,
+  const handleRemoveCustomer = () => {
+    setSelectedCustomer(null);
+
+    setCustomerSearch("");
+    setCustomers([]);
+    setShowCustomerResults(false);
+  };
+
+  // =========================================================
+  // PRODUCT SEARCH CHANGE
+  // =========================================================
+
+  const handleProductSearchChange = (index, value) => {
+    setProductSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = value;
+      return updated;
+    });
+
+    setProductItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        productId: null,
+        product: value,
+      };
+
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // SELECT PRODUCT
+  // =========================================================
+
+  const handleProductSelect = (index, product) => {
+    const price = Number(product.sellingPrice) || 0;
+
+    setProductItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        productId: product.productId,
+        product: product.productName || "",
+        quantity: 1,
+        price,
+        total: price,
+      };
+
+      return updated;
+    });
+
+    setProductSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = "";
+      return updated;
+    });
+
+    setProductResults((previous) => {
+      const updated = [...previous];
+      updated[index] = [];
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // PRODUCT ITEM CHANGE
+  // =========================================================
+
+  const handleProductItemChange = (index, field, value) => {
+    setProductItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // ADD PRODUCT
+  // =========================================================
+
+  const addProductItem = () => {
+    setProductItems((previous) => [
+      ...previous,
       {
+        productId: null,
         product: "",
         quantity: 1,
         price: 0,
         total: 0,
       },
     ]);
+
+    setProductSearches((previous) => [...previous, ""]);
+
+    setProductResults((previous) => [...previous, []]);
+
+    setProductSearching((previous) => [...previous, false]);
   };
 
-  // =========================
-  // REMOVE ITEM
-  // =========================
+  // =========================================================
+  // REMOVE PRODUCT
+  // =========================================================
 
-  const removeItem = (index) => {
-    if (items.length === 1) {
+  const removeProductItem = (index) => {
+    if (productItems.length === 1) {
       return;
     }
 
-    const updated = [...items];
+    setProductItems((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
 
-    updated.splice(index, 1);
+    setProductSearches((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
 
-    setItems(updated);
+    setProductResults((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
+
+    setProductSearching((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
   };
 
-  // =========================
-  // ITEM CHANGE
-  // =========================
+  // =========================================================
+  // LENS SEARCH CHANGE
+  // =========================================================
 
-  const handleItemChange = (index, field, value) => {
-    const updated = [...items];
+  const handleLensSearchChange = (index, value) => {
+    setLensSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = value;
+      return updated;
+    });
 
-    updated[index][field] = value;
+    setLensItems((previous) => {
+      const updated = [...previous];
 
-    updated[index].total =
-      Number(updated[index].quantity) * Number(updated[index].price);
+      updated[index] = {
+        ...updated[index],
+        lensId: null,
+        lens: value,
+      };
 
-    setItems(updated);
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
   };
 
-  // =========================
-  // BILL CALCULATION
-  // =========================
+  // =========================================================
+  // SELECT LENS
+  // =========================================================
 
-  const subtotal = items.reduce(
+  const handleLensSelect = (index, lens) => {
+    // Extra protection: inactive lenses cannot be selected
+    if (lens.status !== true) {
+      alert("This lens is inactive and cannot be added to a receipt.");
+      return;
+    }
+
+    const price = Number(lens.price) || 0;
+
+    const lensName = `${lens.brand} - ${lens.lensType || "Lens"}`;
+
+    setLensItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        lensId: lens.lensId,
+        lens: lensName,
+        quantity: 1,
+        price,
+        total: price,
+      };
+
+      return updated;
+    });
+
+    setLensSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = "";
+      return updated;
+    });
+
+    setLensResults((previous) => {
+      const updated = [...previous];
+      updated[index] = [];
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // LENS ITEM CHANGE
+  // =========================================================
+
+  const handleLensItemChange = (index, field, value) => {
+    setLensItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // ADD LENS
+  // =========================================================
+
+  const addLensItem = () => {
+    setLensItems((previous) => [
+      ...previous,
+      {
+        lensId: null,
+        lens: "",
+        quantity: 1,
+        price: 0,
+        total: 0,
+      },
+    ]);
+
+    setLensSearches((previous) => [...previous, ""]);
+
+    setLensResults((previous) => [...previous, []]);
+
+    setLensSearching((previous) => [...previous, false]);
+  };
+
+  // =========================================================
+  // REMOVE LENS
+  // =========================================================
+
+  const removeLensItem = (index) => {
+    if (lensItems.length === 1) {
+      return;
+    }
+
+    setLensItems((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
+
+    setLensSearches((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
+
+    setLensResults((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
+
+    setLensSearching((previous) =>
+      previous.filter((_, itemIndex) => itemIndex !== index),
+    );
+  };
+
+  // =========================================================
+  // CALCULATIONS
+  // =========================================================
+
+  const productSubtotal = productItems.reduce(
     (sum, item) => sum + Number(item.total || 0),
     0,
   );
+
+  const lensSubtotal = lensItems.reduce(
+    (sum, item) => sum + Number(item.total || 0),
+    0,
+  );
+
+  const subtotal = productSubtotal + lensSubtotal;
 
   const safeDiscount = Math.min(Math.max(Number(discount) || 0, 0), subtotal);
 
@@ -184,40 +644,269 @@ function CreateReceipt() {
 
   const total = taxableAmount + taxAmount;
 
-  const dueAmount = Math.max(total - (Number(paidAmount) || 0), 0);
+  const safePaidAmount = Math.min(Math.max(Number(paidAmount) || 0, 0), total);
 
-  // =========================
+  const dueAmount = Math.max(total - safePaidAmount, 0);
+
+  // =========================================================
   // GENERATE RECEIPT
-  // =========================
+  // =========================================================
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // =======================================================
+    // CUSTOMER VALIDATION
+    // =======================================================
 
     if (!selectedCustomer) {
       alert("Please select a customer.");
       return;
     }
 
-    console.log("Customer ID:", selectedCustomer.customerId);
+    // =======================================================
+    // GET ONLY SELECTED FRAME ITEMS
+    // Empty frame rows are ignored
+    // =======================================================
 
-    console.log("Receipt Data:", {
-      customerId: selectedCustomer.customerId,
-      customerName: selectedCustomer.customerName,
-      items,
-      subtotal,
-      discount,
-      tax,
-      total,
-    });
+    const selectedProductItems = productItems.filter((item) => item.productId);
 
-    alert("Receipt generated successfully.");
+    // =======================================================
+    // VALIDATE SELECTED FRAME ITEMS
+    // =======================================================
+
+    const invalidProduct = selectedProductItems.some(
+      (item) => Number(item.quantity) < 1 || Number(item.price) < 0,
+    );
+
+    if (invalidProduct) {
+      alert("Please enter valid quantity and price for the selected frame.");
+      return;
+    }
+
+    // =======================================================
+    // GET ONLY SELECTED LENS ITEMS
+    // Empty lens rows are ignored
+    // =======================================================
+
+    const selectedLensItems = lensItems.filter((item) => item.lensId);
+
+    // =======================================================
+    // VALIDATE SELECTED LENS ITEMS
+    // =======================================================
+
+    const invalidLens = selectedLensItems.some(
+      (item) => Number(item.quantity) < 1 || Number(item.price) < 0,
+    );
+
+    if (invalidLens) {
+      alert("Please enter valid quantity and price for the selected lens.");
+      return;
+    }
+
+    // =======================================================
+    // AT LEAST ONE ITEM
+    // =======================================================
+
+    if (selectedProductItems.length === 0 && selectedLensItems.length === 0) {
+      alert("Please add at least one frame or lens.");
+      return;
+    }
+
+    // =======================================================
+    // DISCOUNT VALIDATION
+    // =======================================================
+
+    if (Number(discount) < 0 || Number(discount) > subtotal) {
+      alert("Discount cannot be greater than subtotal.");
+      return;
+    }
+
+    // =======================================================
+    // PAID AMOUNT VALIDATION
+    // =======================================================
+
+    const enteredPaidAmount = Number(paidAmount) || 0;
+
+    if (enteredPaidAmount < 0) {
+      alert("Paid amount cannot be negative.");
+      return;
+    }
+
+    if (enteredPaidAmount > total) {
+      alert(`Paid amount cannot exceed total amount of ₹${total.toFixed(2)}.`);
+      return;
+    }
+
+    try {
+      setGenerating(true);
+
+      // =====================================================
+      // PREPARE ORDER ITEMS
+      // =====================================================
+
+      const orderItems = [
+        ...selectedProductItems.map((item) => ({
+          productId: Number(item.productId),
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+        })),
+
+        ...selectedLensItems.map((item) => ({
+          lensId: Number(item.lensId),
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+        })),
+      ];
+
+      console.log("Order Items:", orderItems);
+
+      // =====================================================
+      // CREATE ORDER
+      // =====================================================
+
+      const orderRequest = {
+        customerId: Number(selectedCustomer.customerId),
+
+        status: "PENDING",
+
+        items: orderItems,
+      };
+
+      console.log("Creating Order:", orderRequest);
+
+      const orderResponse = await api.post("/orders", orderRequest);
+
+      console.log("Order Response:", orderResponse.data);
+
+      const createdOrder = orderResponse.data?.data;
+
+      if (!createdOrder?.orderId) {
+        throw new Error("Order was created but orderId was not returned.");
+      }
+
+      // =====================================================
+      // CREATE BILL
+      // =====================================================
+
+      const billRequest = {
+        customerId: Number(selectedCustomer.customerId),
+
+        orderId: createdOrder.orderId,
+
+        subtotal: Number(subtotal.toFixed(2)),
+
+        discount: Number(safeDiscount.toFixed(2)),
+
+        gst: Number(taxAmount.toFixed(2)),
+      };
+
+      console.log("Creating Bill:", billRequest);
+
+      const billResponse = await api.post("/bills", billRequest);
+
+      console.log("Bill Response:", billResponse.data);
+
+      const createdBill = billResponse.data?.data;
+
+      if (!createdBill?.billId) {
+        throw new Error("Bill was created but billId was not returned.");
+      }
+
+      // =====================================================
+      // CREATE PAYMENT
+      //
+      // Do NOT create a payment record for ₹0.
+      // A zero payment means no payment has been made.
+      // =====================================================
+
+      let createdPayment = null;
+
+      if (enteredPaidAmount > 0) {
+        const paymentStatus = enteredPaidAmount >= total ? "PAID" : "PARTIAL";
+
+        const paymentRequest = {
+          billId: createdBill.billId,
+
+          paymentType: paymentMethod,
+
+          amount: Number(enteredPaidAmount.toFixed(2)),
+
+          status: paymentStatus,
+        };
+
+        console.log("Creating Payment:", paymentRequest);
+
+        const paymentResponse = await api.post("/payments", paymentRequest);
+
+        console.log("Payment Response:", paymentResponse.data);
+
+        if (!paymentResponse.data?.success) {
+          throw new Error(
+            paymentResponse.data?.message || "Payment could not be created.",
+          );
+        }
+
+        createdPayment = paymentResponse.data?.data;
+      }
+
+      // =====================================================
+      // SUCCESS ALERT
+      // =====================================================
+
+      window.alert(
+        `Receipt Generated Successfully!\n\n` +
+          `Bill No: BILL${String(createdBill.billId).padStart(3, "0")}\n` +
+          `Customer: ${selectedCustomer.customerName}\n` +
+          `Order ID: ${createdOrder.orderId}\n` +
+          `Total: ₹${total.toFixed(2)}\n` +
+          `Paid: ₹${enteredPaidAmount.toFixed(2)}\n` +
+          `Due: ₹${dueAmount.toFixed(2)}\n` +
+          `Status: ${
+            enteredPaidAmount >= total
+              ? "PAID"
+              : enteredPaidAmount > 0
+                ? "PARTIAL"
+                : "PENDING"
+          }`,
+      );
+
+      console.log("Receipt Created Successfully:", {
+        customer: selectedCustomer,
+        order: createdOrder,
+        bill: createdBill,
+        payment: createdPayment,
+      });
+
+      // =====================================================
+      // REDIRECT TO RECEIPT LIST
+      // =====================================================
+
+      navigate("/receipts");
+    } catch (error) {
+      console.error("Generate receipt error:", error);
+
+      console.error("Backend error:", error.response?.data);
+
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Unable to generate receipt.",
+      );
+    } finally {
+      setGenerating(false);
+    }
   };
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <div className="receipt-container">
-      {/* =========================
+      {/* =====================================================
           HEADER
-      ========================= */}
+      ===================================================== */}
 
       <div className="receipt-header">
         <div>
@@ -231,77 +920,102 @@ function CreateReceipt() {
         </div>
       </div>
 
-      {/* =========================
+      {/* =====================================================
           CUSTOMER INFORMATION
-      ========================= */}
+      ===================================================== */}
 
       <div className="receipt-card">
         <h3>Customer Information</h3>
 
         <div className="grid-3">
-          {/* CUSTOMER SEARCH */}
-
           <div className="customer-search-container">
             <label>
               Customer <span className="required">*</span>
             </label>
 
-            <input
-              type="text"
-              placeholder="Search customer by name..."
-              value={customerSearch}
-              onChange={(e) => {
-                setCustomerSearch(e.target.value);
-                setSelectedCustomer(null);
-              }}
-              onFocus={() => {
-                if (customerSearch.trim()) {
-                  setShowCustomerResults(true);
-                }
-              }}
-              autoComplete="off"
-            />
+            {!selectedCustomer ? (
+              <>
+                <div className="customer-search-box">
+                  <FaSearch />
 
-            {/* SEARCH RESULTS */}
+                  <input
+                    type="text"
+                    placeholder="Search by name, code or mobile..."
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                    autoComplete="off"
+                  />
 
-            {showCustomerResults && (
-              <div className="customer-results">
-                {customerLoading ? (
-                  <div className="customer-result-message">
-                    Searching customers...
-                  </div>
-                ) : customers.length > 0 ? (
-                  customers.map((customer) => (
-                    <div
-                      key={customer.customerId}
-                      className="customer-result"
-                      onClick={() => handleCustomerSelect(customer)}
-                    >
-                      <strong>{customer.customerName}</strong>
+                  {customerLoading && (
+                    <span className="search-loader">...</span>
+                  )}
+                </div>
 
-                      <small>{customer.mobileNumber}</small>
+                {customerSearch.trim() &&
+                  !customerLoading &&
+                  showCustomerResults && (
+                    <div className="customer-results">
+                      {customers.length > 0 ? (
+                        customers.map((customer) => (
+                          <button
+                            type="button"
+                            key={customer.customerId}
+                            className="customer-result"
+                            onClick={() => handleCustomerSelect(customer)}
+                          >
+                            <div className="customer-result-avatar">
+                              {customer.customerName?.charAt(0)?.toUpperCase()}
+                            </div>
+
+                            <div className="customer-result-info">
+                              <div className="customer-result-name">
+                                {customer.customerName}
+                              </div>
+
+                              <div className="customer-result-meta">
+                                <span>{customer.customerCode}</span>
+
+                                <span>•</span>
+
+                                <span>{customer.mobileNumber}</span>
+
+                                {customer.city && (
+                                  <>
+                                    <span>•</span>
+
+                                    <span>{customer.city}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="customer-result-message">
+                          No customer found.
+                        </div>
+                      )}
                     </div>
-                  ))
-                ) : (
-                  <div className="customer-result-message">
-                    No customers found.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* SELECTED CUSTOMER INFO */}
-
-            {selectedCustomer && (
+                  )}
+              </>
+            ) : (
               <div className="selected-customer">
-                <strong>{selectedCustomer.customerName}</strong>
+                <div>
+                  <strong>{selectedCustomer.customerName}</strong>
 
-                <span>{selectedCustomer.mobileNumber}</span>
+                  <span>{selectedCustomer.mobileNumber}</span>
+                </div>
+
+                <button
+                  type="button"
+                  className="remove-customer"
+                  onClick={handleRemoveCustomer}
+                >
+                  <FaTimes />
+                </button>
               </div>
             )}
           </div>
-
-          {/* BILL DATE */}
 
           <div>
             <label>Bill Date</label>
@@ -314,159 +1028,351 @@ function CreateReceipt() {
         </div>
       </div>
 
-      {/* =========================
-          PRODUCTS
-      ========================= */}
+      {/* =====================================================
+          FRAMES / PRODUCTS
+      ===================================================== */}
 
       <div className="receipt-card">
         <div className="product-header">
-          <h3>Products</h3>
+          <div>
+            <h3>Frames / Products</h3>
 
-          <button type="button" onClick={addItem} className="add-product-btn">
+            <p>Add frame or product purchased by the customer.</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={addProductItem}
+            className="add-product-btn"
+          >
             <FaPlus />
-            Add Item
+            Add Frame
           </button>
         </div>
 
         <table>
           <thead>
             <tr>
-              <th>Product</th>
+              <th>Frame / Product</th>
+
               <th>Qty</th>
+
               <th>Price</th>
+
               <th>Total</th>
+
               <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {items.map((item, index) => (
-              <tr key={index}>
-                <td className="product-search-cell">
-                  <input
-                    type="text"
-                    placeholder="Search product..."
-                    value={item.product}
-                    onChange={(e) => {
-                      handleItemChange(index, "product", e.target.value);
+            {productItems.map((item, index) => {
+              const search = productSearches[index] || "";
 
-                      setProductSearch(e.target.value);
-                      setSelectedProduct(null);
-                      setShowProductResults(true);
-                    }}
-                    onFocus={() => {
-                      if (item.product.trim()) {
-                        setProductSearch(item.product);
-                        setShowProductResults(true);
-                      }
-                    }}
-                    autoComplete="off"
-                  />
+              const results = productResults[index] || [];
 
-                  {showProductResults && productSearch.trim() !== "" && (
-                    <div className="product-results">
-                      {filteredProducts.length > 0 ? (
-                        filteredProducts.map((product) => (
-                          <div
-                            key={product.productId}
-                            className="product-result"
-                            onClick={() => {
-                              setSelectedProduct(product);
+              const searching = productSearching[index] || false;
 
-                              setProductSearch(product.productName);
+              return (
+                <tr key={index}>
+                  <td className="product-search-cell">
+                    <div className="customer-search-box">
+                      <FaSearch />
 
-                              setShowProductResults(false);
+                      <input
+                        type="text"
+                        placeholder="Search frame / product..."
+                        value={search.trim() ? search : item.product}
+                        onChange={(e) =>
+                          handleProductSearchChange(index, e.target.value)
+                        }
+                        autoComplete="off"
+                      />
 
-                              handleItemChange(
-                                index,
-                                "product",
-                                product.productName,
-                              );
-
-                              handleItemChange(
-                                index,
-                                "price",
-                                Number(product.sellingPrice) || 0,
-                              );
-                            }}
-                          >
-                            <strong>{product.productName}</strong>
-
-                            <small>
-                              {product.brand}
-                              {" • "}₹{product.sellingPrice}
-                            </small>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="product-result-message">
-                          No products found.
-                        </div>
-                      )}
+                      {searching && <span className="search-loader">...</span>}
                     </div>
-                  )}
-                </td>
 
-                <td>
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleItemChange(
-                        index,
-                        "quantity",
-                        Number(e.target.value),
-                      )
-                    }
-                  />
-                </td>
+                    {search.trim() && !searching && (
+                      <div className="customer-results">
+                        {results.length > 0 ? (
+                          results.map((product) => (
+                            <button
+                              type="button"
+                              key={product.productId}
+                              className="customer-result"
+                              onClick={() =>
+                                handleProductSelect(index, product)
+                              }
+                            >
+                              <div className="customer-result-avatar">
+                                {product.productName?.charAt(0)?.toUpperCase()}
+                              </div>
 
-                <td>
-                  <input
-                    type="number"
-                    min="0"
-                    value={item.price}
-                    onChange={(e) =>
-                      handleItemChange(index, "price", Number(e.target.value))
-                    }
-                  />
-                </td>
+                              <div className="customer-result-info">
+                                <div className="customer-result-name">
+                                  {product.productName}
+                                </div>
 
-                <td>₹{Number(item.total).toFixed(2)}</td>
+                                <div className="customer-result-meta">
+                                  {product.brand && (
+                                    <span>{product.brand}</span>
+                                  )}
 
-                <td>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(index)}
-                    className="delete-btn"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                                  {product.brand && product.modelNumber && (
+                                    <span>•</span>
+                                  )}
+
+                                  {product.modelNumber && (
+                                    <span>{product.modelNumber}</span>
+                                  )}
+
+                                  {product.sellingPrice != null && (
+                                    <>
+                                      <span>•</span>
+
+                                      <span>₹{product.sellingPrice}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="customer-result-message">
+                            No product found.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleProductItemChange(
+                          index,
+                          "quantity",
+                          Number(e.target.value),
+                        )
+                      }
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.price}
+                      onChange={(e) =>
+                        handleProductItemChange(
+                          index,
+                          "price",
+                          Number(e.target.value),
+                        )
+                      }
+                    />
+                  </td>
+
+                  <td>₹{Number(item.total || 0).toFixed(2)}</td>
+
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => removeProductItem(index)}
+                      className="delete-btn"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {/* =========================
+      {/* =====================================================
+          LENSES
+      ===================================================== */}
+
+      <div className="receipt-card">
+        <div className="product-header">
+          <div>
+            <h3>Lenses</h3>
+
+            <p>Add prescription or optical lenses purchased by the customer.</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={addLensItem}
+            className="add-product-btn"
+          >
+            <FaPlus />
+            Add Lens
+          </button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Lens</th>
+
+              <th>Power</th>
+
+              <th>Qty</th>
+
+              <th>Price</th>
+
+              <th>Total</th>
+
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {lensItems.map((item, index) => {
+              const search = lensSearches[index] || "";
+
+              const results = lensResults[index] || [];
+
+              const searching = lensSearching[index] || false;
+
+              const selectedLens = lenses.find(
+                (lens) => lens.lensId === item.lensId,
+              );
+
+              return (
+                <tr key={index}>
+                  <td className="product-search-cell">
+                    <div className="customer-search-box">
+                      <FaSearch />
+
+                      <input
+                        type="text"
+                        placeholder="Search lens by brand, type, material..."
+                        value={search.trim() ? search : item.lens}
+                        onChange={(e) =>
+                          handleLensSearchChange(index, e.target.value)
+                        }
+                        autoComplete="off"
+                      />
+
+                      {searching && <span className="search-loader">...</span>}
+                    </div>
+
+                    {search.trim() && !searching && (
+                      <div className="customer-results">
+                        {results.length > 0 ? (
+                          results.map((lens) => (
+                            <button
+                              type="button"
+                              key={lens.lensId}
+                              className="customer-result"
+                              onClick={() => handleLensSelect(index, lens)}
+                            >
+                              <div className="customer-result-avatar">
+                                {lens.brand?.charAt(0)?.toUpperCase()}
+                              </div>
+
+                              <div className="customer-result-info">
+                                <div className="customer-result-name">
+                                  {lens.brand} - {lens.lensType || "Lens"}
+                                </div>
+
+                                <div className="customer-result-meta">
+                                  <span>
+                                    {lens.lensMaterial || "Material N/A"}
+                                  </span>
+
+                                  <span>•</span>
+
+                                  <span>Power: {lens.power ?? "N/A"}</span>
+
+                                  <span>•</span>
+
+                                  <span>₹{lens.price}</span>
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="customer-result-message">
+                            No lens found.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+
+                  <td>{selectedLens ? selectedLens.power : "-"}</td>
+
+                  <td>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleLensItemChange(
+                          index,
+                          "quantity",
+                          Number(e.target.value),
+                        )
+                      }
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.price}
+                      onChange={(e) =>
+                        handleLensItemChange(
+                          index,
+                          "price",
+                          Number(e.target.value),
+                        )
+                      }
+                    />
+                  </td>
+
+                  <td>₹{Number(item.total || 0).toFixed(2)}</td>
+
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => removeLensItem(index)}
+                      className="delete-btn"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* =====================================================
           BILL SUMMARY
-      ========================= */}
+      ===================================================== */}
 
       <div className="receipt-card">
         <h3>Bill Summary</h3>
 
         <div className="summary">
-          {/* SUBTOTAL */}
-
           <div>
             <span>Subtotal</span>
 
             <strong>₹{subtotal.toFixed(2)}</strong>
           </div>
-
-          {/* DISCOUNT */}
 
           <div>
             <label>Discount</label>
@@ -480,14 +1386,10 @@ function CreateReceipt() {
               onChange={(e) => {
                 const value = Number(e.target.value);
 
-                if (value <= subtotal) {
-                  setDiscount(value);
-                }
+                setDiscount(Math.min(Math.max(value || 0, 0), subtotal));
               }}
             />
           </div>
-
-          {/* TAX */}
 
           <div>
             <label>Tax (%)</label>
@@ -501,14 +1403,10 @@ function CreateReceipt() {
               onChange={(e) => {
                 const value = Number(e.target.value);
 
-                if (value >= 0 && value <= 100) {
-                  setTax(value);
-                }
+                setTax(Math.min(Math.max(value || 0, 0), 100));
               }}
             />
           </div>
-
-          {/* TAX AMOUNT */}
 
           <div>
             <span>Tax Amount</span>
@@ -516,19 +1414,17 @@ function CreateReceipt() {
             <strong>₹{taxAmount.toFixed(2)}</strong>
           </div>
 
-          {/* GRAND TOTAL */}
-
           <div className="grand-total">
             <span>Total</span>
 
-            <strong>₹{Math.max(total, 0).toFixed(2)}</strong>
+            <strong>₹{total.toFixed(2)}</strong>
           </div>
         </div>
       </div>
 
-      {/* =========================
+      {/* =====================================================
           PAYMENT
-      ========================= */}
+      ===================================================== */}
 
       <div className="receipt-card">
         <h3>Payment Details</h3>
@@ -537,10 +1433,13 @@ function CreateReceipt() {
           <div>
             <label>Payment Method</label>
 
-            <select>
-              <option value="Cash">Cash</option>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            >
+              <option value="CASH">Cash</option>
 
-              <option value="Card">Card</option>
+              <option value="CARD">Card</option>
 
               <option value="UPI">UPI</option>
             </select>
@@ -549,24 +1448,46 @@ function CreateReceipt() {
           <div>
             <label>Paid Amount</label>
 
-            <input type="number" min="0" />
+            <input
+              type="number"
+              min="0"
+              max={total}
+              step="0.01"
+              value={paidAmount}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+
+                setPaidAmount(Math.min(Math.max(value || 0, 0), total));
+              }}
+            />
           </div>
 
           <div>
             <label>Due Amount</label>
 
-            <input type="number" min="0" value={Math.max(total, 0)} readOnly />
+            <input
+              type="number"
+              min="0"
+              value={dueAmount.toFixed(2)}
+              readOnly
+            />
           </div>
         </div>
       </div>
 
-      {/* =========================
+      {/* =====================================================
           GENERATE RECEIPT
-      ========================= */}
+      ===================================================== */}
 
-      <button type="button" className="generate-btn" onClick={handleSubmit}>
+      <button
+        type="button"
+        className="generate-btn"
+        onClick={handleSubmit}
+        disabled={generating}
+      >
         <FaFileInvoiceDollar />
-        Generate Receipt
+
+        {generating ? "Generating Receipt..." : "Generate Receipt"}
       </button>
     </div>
   );

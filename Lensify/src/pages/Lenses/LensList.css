@@ -1,0 +1,467 @@
+/* =========================================================
+   LENSIFY - LENS LIST
+   Styling for LensList.jsx
+   ========================================================= */
+
+.lens-list-page {
+  min-height: 100%;
+  padding: 28px;
+  background: #f5f7fb;
+  box-sizing: border-box;
+}
+
+/* =========================
+   PAGE HEADER
+   ========================= */
+
+.lens-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.lens-page-header h1 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.lens-page-header p {
+  margin: 0;
+  color: #7a8496;
+  font-size: 14px;
+}
+
+.create-lens-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 9px;
+  background: #2563eb;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+}
+
+.create-lens-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+/* =========================
+   SUMMARY CARDS
+   ========================= */
+
+.lens-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.lens-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 90px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e7ebf2;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 3px 14px rgba(23, 32, 51, 0.04);
+}
+
+.lens-summary-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 19px;
+}
+
+.lens-summary-card:nth-child(2) .lens-summary-icon {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.lens-summary-card:nth-child(3) .lens-summary-icon {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.lens-summary-card:nth-child(4) .lens-summary-icon {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.lens-summary-card span {
+  display: block;
+  margin-bottom: 5px;
+  color: #7a8496;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lens-summary-card strong {
+  display: block;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* =========================
+   MAIN CARD
+   ========================= */
+
+.lens-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e7ebf2;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(23, 32, 51, 0.05);
+}
+
+.lens-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.lens-card-header h2 {
+  margin: 0 0 5px;
+  color: #172033;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.lens-card-header p {
+  margin: 0;
+  color: #8992a3;
+  font-size: 13px;
+}
+
+/* =========================
+   SEARCH
+   ========================= */
+
+.lens-search {
+  position: relative;
+  width: 270px;
+}
+
+.lens-search svg {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  transform: translateY(-50%);
+  color: #929bad;
+  font-size: 13px;
+}
+
+.lens-search input {
+  width: 100%;
+  height: 40px;
+  padding: 0 13px 0 36px;
+  border: 1px solid #dfe4ec;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #263247;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.lens-search input::placeholder {
+  color: #a1a8b5;
+}
+
+.lens-search input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* =========================
+   TABLE
+   ========================= */
+
+.lens-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.lens-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+
+.lens-table thead {
+  background: #f8fafc;
+}
+
+.lens-table th {
+  padding: 13px 18px;
+  border-bottom: 1px solid #e7ebf2;
+  color: #687386;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lens-table td {
+  padding: 15px 18px;
+  border-bottom: 1px solid #edf0f4;
+  color: #394458;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.lens-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.lens-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.lens-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================
+   EMPTY / LOADING
+   ========================= */
+
+.lens-table-message {
+  padding: 45px 20px !important;
+  color: #8a94a6 !important;
+  text-align: center;
+}
+
+/* =========================
+   LENS NAME
+   ========================= */
+
+.lens-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 180px;
+}
+
+.lens-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 15px;
+}
+
+.lens-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lens-info strong {
+  color: #202a3b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lens-info span {
+  color: #929bad;
+  font-size: 11px;
+}
+
+/* =========================
+   POWER
+   ========================= */
+
+.lens-power {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================
+   PRICE
+   ========================= */
+
+.lens-price {
+  color: #172033;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================
+   STOCK
+   ========================= */
+
+.stock-normal {
+  color: #059669;
+  font-weight: 600;
+}
+
+.stock-low {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* =========================
+   STATUS
+   ========================= */
+
+.lens-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 65px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.lens-status.active {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.lens-status.inactive {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* =========================
+   ACTIONS
+   ========================= */
+
+.lens-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.lens-action-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.lens-view-btn {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.lens-view-btn:hover {
+  background: #dbeafe;
+}
+
+.lens-edit-btn {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.lens-edit-btn:hover {
+  background: #ffedd5;
+}
+
+.lens-delete-btn {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.lens-delete-btn:hover {
+  background: #fee2e2;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 1100px) {
+  .lens-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .lens-list-page {
+    padding: 18px;
+  }
+
+  .lens-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .create-lens-btn {
+    width: 100%;
+  }
+
+  .lens-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lens-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .lens-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .lens-page-header h1 {
+    font-size: 24px;
+  }
+
+  .lens-card-header {
+    padding: 17px;
+  }
+}

@@ -43,6 +43,11 @@ import EditProduct from "../pages/Products/EditProduct";
 import CategoryList from "../pages/Categories/CategoryList";
 import AddCategory from "../pages/Categories/AddCategory";
 import EditCategory from "../pages/Categories/EditCategory";
+/* Lenses */
+import LensList from "../pages/Lenses/LensList";
+import AddLens from "../pages/Lenses/AddLens";
+import EditLens from "../pages/Lenses/EditLens";
+import ViewLens from "../pages/Lenses/ViewLens";
 
 /* Appointments */
 import AppointmentList from "../pages/Appointments/AppointmentList";
@@ -62,17 +67,14 @@ import NotFound from "../pages/NotFound";
 function AppRoutes() {
   return (
     <Routes>
-
       {/* PUBLIC ROUTES */}
       <Route path="/" element={<Login />} />
 
-
       {/* PRIVATE ROUTES */}
       <Route element={<Layout />}>
-
         {/* Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/register" element={<Register />}/>
+        <Route path="/register" element={<Register />} />
 
         {/* Customers */}
         <Route path="/customers" element={<CustomerList />} />
@@ -84,50 +86,60 @@ function AppRoutes() {
         <Route path="/prescriptions" element={<PrescriptionList />} />
         <Route path="/prescriptions/add" element={<AddPrescription />} />
         <Route path="/prescriptions/:id" element={<ViewPrescription />} />
-        <Route path="/prescriptions/edit/:id" element={<EditPrescription />}/>
+        <Route path="/prescriptions/edit/:id" element={<EditPrescription />} />
 
         {/* Receipts */}
         <Route path="/receipts" element={<ReceiptList />} />
         <Route path="/receipts/create" element={<CreateReceipt />} />
         <Route path="/receipts/:id" element={<ViewReceipt />} />
-        <Route path="/receipts/edit/:id" element={<EditReceipt />}/>
+        <Route path="/receipts/edit/:id" element={<EditReceipt />} />
 
         {/* Search */}
         <Route path="/search" element={<SearchPage />} />
 
         {/* User Management */}
         <Route path="/users" element={<UserList />} />
-   
+
         <Route path="/users/edit/:id" element={<EditUser />} />
 
         {/* Inventory */}
         <Route path="/products" element={<ProductList />} />
         <Route path="/products/add" element={<AddProduct />} />
-        <Route path="/products/edit/:id" element={<EditProduct />}/>
+        <Route path="/products/edit/:id" element={<EditProduct />} />
         <Route path="/categories" element={<CategoryList />} />
-        <Route path="/categories/add"  element={<AddCategory />}/>
-        <Route path="/categories/edit/:id" element={<EditCategory />}/>
+        <Route path="/categories/add" element={<AddCategory />} />
+        <Route path="/categories/edit/:id" element={<EditCategory />} />
+
+        {/* ===================================================
+            INVENTORY - LENSES
+            =================================================== */}
+
+        <Route path="/lenses" element={<LensList />} />
+
+        <Route path="/lenses/add" element={<AddLens />} />
+
+        <Route path="/lenses/:id" element={<ViewLens />} />
+
+        <Route path="/lenses/edit/:id" element={<EditLens />} />
 
         {/* Appointments */}
-       <Route path="/appointments" element={<AppointmentList />} />
+        <Route path="/appointments" element={<AppointmentList />} />
 
-      <Route path="/appointments/add" element={<AddAppointment />} />
+        <Route path="/appointments/add" element={<AddAppointment />} />
 
-      <Route path="/appointments/view/:id" element={<ViewAppointment />} />
+        <Route path="/appointments/view/:id" element={<ViewAppointment />} />
 
-      <Route path="/appointments/edit/:id" element={<EditAppointment />} />
+        <Route path="/appointments/edit/:id" element={<EditAppointment />} />
 
         {/* Reports */}
         <Route path="/reports" element={<Reports />} />
 
         {/* Settings */}
         <Route path="/settings" element={<Settings />} />
-
       </Route>
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
-
     </Routes>
   );
 }
