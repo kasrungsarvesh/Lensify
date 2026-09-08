@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import ReportCards from "../../components/reports/ReportCards";
 import ReportActions from "../../components/reports/ReportActions";
 import RevenueChart from "../../components/reports/RevenueChart";
@@ -9,52 +11,143 @@ import RecentTransactions from "../../components/reports/RecentTransactions";
 import "./Reports.css";
 
 function Reports() {
+  // ============================================================
+  // DATE FILTER STATE
+  // ============================================================
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // ============================================================
+  // CLEAR FILTERS
+  // ============================================================
+
+  const clearFilters = () => {
+    setStartDate("");
+    setEndDate("");
+  };
+
+  // ============================================================
+  // HANDLE START DATE
+  // ============================================================
+
+  const handleStartDateChange = (e) => {
+    const value = e.target.value;
+
+    setStartDate(value);
+
+    // If end date is before start date,
+    // automatically clear the end date.
+    if (endDate && value > endDate) {
+      setEndDate("");
+    }
+  };
+
+  // ============================================================
+  // HANDLE END DATE
+  // ============================================================
+
+  const handleEndDateChange = (e) => {
+    const value = e.target.value;
+
+    if (startDate && value < startDate) {
+      return;
+    }
+
+    setEndDate(value);
+  };
+
   return (
     <div className="reports-page">
+      {/* ======================================================
+          REPORT HEADER
+      ====================================================== */}
 
       <div className="reports-header">
-
-        <div>
-
+        <div className="reports-title">
           <h2>Reports & Analytics</h2>
 
-          <p>
-            Monitor your business performance and sales.
-          </p>
-
+          <p>Monitor your business performance and sales.</p>
         </div>
+
+        {/* ====================================================
+            DATE FILTER
+        ==================================================== */}
 
         <div className="report-filter">
+          <div className="date-field">
+            <label htmlFor="startDate">From</label>
 
-          <input type="date"/>
+            <input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              max={endDate || undefined}
+            />
+          </div>
 
-          <input type="date"/>
+          <div className="date-field">
+            <label htmlFor="endDate">To</label>
 
+            <input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+              min={startDate || undefined}
+            />
+          </div>
+
+          {(startDate || endDate) && (
+            <button
+              type="button"
+              className="clear-filter-btn"
+              onClick={clearFilters}
+            >
+              Clear
+            </button>
+          )}
         </div>
-
       </div>
 
-      <ReportCards />
+      {/* ======================================================
+          REPORT CARDS
+      ====================================================== */}
+
+      <ReportCards startDate={startDate} endDate={endDate} />
+
+      {/* ======================================================
+          CHARTS
+      ====================================================== */}
 
       <div className="chart-grid">
+        <RevenueChart startDate={startDate} endDate={endDate} />
 
-      <RevenueChart/>
-
-      <SalesChart/>
-
+        <SalesChart startDate={startDate} endDate={endDate} />
       </div>
+
+      {/* ======================================================
+          TOP CUSTOMERS / PRODUCTS
+      ====================================================== */}
 
       <div className="report-widget-grid">
+        <TopCustomers startDate={startDate} endDate={endDate} />
 
-          <TopCustomers/>
-
-          <TopProducts/>
-
+        <TopProducts startDate={startDate} endDate={endDate} />
       </div>
-      <RecentTransactions/>
 
-      <ReportActions />
+      {/* ======================================================
+          RECENT TRANSACTIONS
+      ====================================================== */}
 
+      <RecentTransactions startDate={startDate} endDate={endDate} />
+
+      {/* ======================================================
+          REPORT ACTIONS
+      ====================================================== */}
+
+      <ReportActions startDate={startDate} endDate={endDate} />
     </div>
   );
 }
