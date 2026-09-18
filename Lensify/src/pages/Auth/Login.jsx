@@ -62,6 +62,10 @@ function Login() {
   const handleLogin = async (event) => {
     event.preventDefault();
 
+    // =========================
+    // VALIDATION
+    // =========================
+
     if (!formData.username.trim()) {
       alert("Please enter username.");
       return;
@@ -75,35 +79,103 @@ function Login() {
     try {
       setLoading(true);
 
+      // =========================
+      // LOGIN API
+      // =========================
+
       const response = await login({
         username: formData.username.trim(),
         password: formData.password,
       });
 
-      const token = response.data.data.token;
+      const loginData = response.data?.data;
+
+      if (!loginData) {
+        throw new Error("Invalid login response from server.");
+      }
+
+      // =========================
+      // GET JWT TOKEN
+      // =========================
+
+      const token = loginData.token;
 
       if (!token) {
         throw new Error("Authentication token was not received.");
       }
 
-      // Save JWT
-      localStorage.setItem("token", token);
+      // =========================
+      // DECODE JWT
+      // =========================
 
-      // Decode JWT
       const decodedToken = decodeToken(token);
 
+      console.log("Login response:", loginData);
       console.log("Decoded JWT:", decodedToken);
 
+      // =========================
+      // USER INFORMATION
+      // =========================
+
+      const userId = loginData.userId;
+
+      if (!userId) {
+        console.warn("User ID was not returned by login API.");
+      }
+
+      const fullName =
+        loginData.fullName ||
+        decodedToken?.fullName ||
+        loginData.username ||
+        formData.username.trim();
+
       const username =
-        decodedToken?.username || decodedToken?.sub || formData.username;
+        loginData.username ||
+        decodedToken?.username ||
+        decodedToken?.sub ||
+        formData.username.trim();
 
-      const role = decodedToken?.roleName || decodedToken?.role || "USER";
+      const role =
+        loginData.role ||
+        decodedToken?.roleName ||
+        decodedToken?.role ||
+        "USER";
 
-      // Save logged-in user details
+      console.log("User ID:", userId);
+      console.log("Full Name:", fullName);
+      console.log("Username:", username);
+      console.log("Role:", role);
+
+      // =========================
+      // CLEAR OLD USER DATA
+      // =========================
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("fullName");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+
+      // =========================
+      // SAVE NEW LOGIN DATA
+      // =========================
+
+      localStorage.setItem("token", token);
+
+      if (userId !== null && userId !== undefined) {
+        localStorage.setItem("userId", userId.toString());
+      }
+
+      localStorage.setItem("fullName", fullName);
       localStorage.setItem("username", username);
+      localStorage.setItem("email", loginData.email);
+      localStorage.setItem("phoneNumber", loginData.phoneNumber);
       localStorage.setItem("role", role);
 
-      // Remember username only
+      // =========================
+      // REMEMBER USERNAME
+      // =========================
+
       if (rememberMe) {
         localStorage.setItem("rememberedUsername", username);
         localStorage.setItem("rememberMe", "true");
@@ -112,13 +184,23 @@ function Login() {
         localStorage.removeItem("rememberMe");
       }
 
+      // =========================
+      // SUCCESS
+      // =========================
+
       alert("Login Successful");
 
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       console.error("Login Error:", error);
 
-      alert(error.response?.data?.message || error.message || "Login Failed");
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Login Failed";
+
+      alert(message);
     } finally {
       setLoading(false);
     }

@@ -1,234 +1,309 @@
-import {
-  FaUserPlus,
-  FaEdit,
-  FaUserShield
-} from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaUserPlus, FaEdit, FaUserShield, FaSearch } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
+import api from "../../api/axios";
+
 import "./UserList.css";
 
 function UserList() {
+  // =========================
+  // STATE
+  // =========================
+
+  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // =========================
+  // FETCH USERS
+  // =========================
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await api.get("/users");
+
+      console.log("Users API response:", response.data);
+
+      const userData = response.data?.data || [];
+
+      setUsers(Array.isArray(userData) ? userData : []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+
+      setError(
+        error.response?.data?.message ||
+          "Unable to load users. Please try again.",
+      );
+
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // SEARCH
+  // =========================
+
+  const filteredUsers = users.filter((user) => {
+    const search = searchTerm.toLowerCase().trim();
+
+    if (!search) {
+      return true;
+    }
+
+    return (
+      user.fullName?.toLowerCase().includes(search) ||
+      user.username?.toLowerCase().includes(search) ||
+      user.email?.toLowerCase().includes(search) ||
+      user.phoneNumber?.toLowerCase().includes(search) ||
+      user.roleName?.toLowerCase().includes(search)
+    );
+  });
+
+  // =========================
+  // STATS
+  // =========================
+
+  const totalUsers = users.length;
+
+  const activeUsers = users.filter((user) => user.status === true).length;
+
+  const inactiveUsers = users.filter((user) => user.status === false).length;
+
+  // =========================
+  // ROLE DISPLAY
+  // =========================
+
+  const formatRole = (role) => {
+    if (!role) {
+      return "User";
+    }
+
+    return role
+      .replace("ROLE_", "")
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  // =========================
+  // ROLE CSS CLASS
+  // =========================
+
+  const getRoleClass = (role) => {
+    if (!role) {
+      return "user";
+    }
+
+    return role.replace("ROLE_", "").toLowerCase().replace(/\s+/g, "-");
+  };
+
   return (
     <div className="user-page">
-
-      {/* Header */}
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <div className="user-header">
-
         <div>
           <h2>User Management</h2>
-          <p>
-            Manage system users and roles
-          </p>
+
+          <p>Manage system users and roles</p>
         </div>
 
-        <Link
-          to="/register"
-          className="add-user-btn"
-        >
+        <Link to="/register" className="add-user-btn">
           <FaUserPlus />
           Add User
         </Link>
-
       </div>
 
-      {/* Stats */}
+      {/* =========================
+          STATS
+      ========================= */}
 
       <div className="user-stats">
+        {/* TOTAL */}
 
         <div className="stat-card">
-
           <FaUserShield />
 
           <div>
-            <h3>8</h3>
+            <h3>{totalUsers}</h3>
+
             <p>Total Users</p>
           </div>
-
         </div>
 
-        <div className="stat-card">
+        {/* ACTIVE */}
 
+        <div className="stat-card">
           <FaUserShield />
 
           <div>
-            <h3>6</h3>
+            <h3>{activeUsers}</h3>
+
             <p>Active Users</p>
           </div>
-
         </div>
 
-        <div className="stat-card">
+        {/* INACTIVE */}
 
+        <div className="stat-card">
           <FaUserShield />
 
           <div>
-            <h3>2</h3>
+            <h3>{inactiveUsers}</h3>
+
             <p>Inactive Users</p>
           </div>
-
         </div>
-
       </div>
 
-      {/* Search */}
+      {/* =========================
+          SEARCH
+      ========================= */}
 
       <div className="search-card">
+        <FaSearch className="search-icon" />
 
         <input
           type="text"
-          placeholder="Search user..."
+          placeholder="Search by name, username, email, mobile or role..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-
       </div>
 
-      {/* Table */}
+      {/* =========================
+          ERROR
+      ========================= */}
+
+      {error && <div className="user-error">{error}</div>}
+
+      {/* =========================
+          TABLE
+      ========================= */}
 
       <div className="table-card">
-
         <table>
-
           <thead>
-
             <tr>
-
               <th>ID</th>
               <th>Name</th>
+              <th>Username</th>
               <th>Email</th>
               <th>Mobile</th>
               <th>Role</th>
               <th>Status</th>
               <th>Actions</th>
-
             </tr>
-
           </thead>
 
           <tbody>
+            {/* LOADING */}
 
-            <tr>
+            {loading && (
+              <tr>
+                <td colSpan="8" className="table-message">
+                  Loading users...
+                </td>
+              </tr>
+            )}
 
-              <td>1</td>
+            {/* NO USERS */}
 
-              <td>Admin User</td>
+            {!loading && filteredUsers.length === 0 && (
+              <tr>
+                <td colSpan="8" className="table-message">
+                  {searchTerm
+                    ? "No users found matching your search."
+                    : "No users found."}
+                </td>
+              </tr>
+            )}
 
-              <td>
-                admin@lensify.com
-              </td>
+            {/* USERS */}
 
-              <td>
-                9876543210
-              </td>
+            {!loading &&
+              filteredUsers.map((user) => (
+                <tr key={user.userId}>
+                  {/* ID */}
 
-              <td>
-                <span className="role owner">
-                  Owner
-                </span>
-              </td>
+                  <td>{user.userId}</td>
 
-              <td>
-                <span className="status active">
-                  Active
-                </span>
-              </td>
+                  {/* NAME */}
 
-              <td className="action-buttons">
+                  <td>
+                    <strong>{user.fullName || "-"}</strong>
+                  </td>
 
-                <Link
-                  to="/users/edit/1"
-                  className="edit-btn"
-                >
-                  <FaEdit />
-                </Link>
+                  {/* USERNAME */}
 
-              </td>
+                  <td>@{user.username || "-"}</td>
 
-            </tr>
+                  {/* EMAIL */}
 
-            <tr>
+                  <td>{user.email || "-"}</td>
 
-              <td>2</td>
+                  {/* MOBILE */}
 
-              <td>Priya Patel</td>
+                  <td>{user.phoneNumber || "-"}</td>
 
-              <td>
-                priya@lensify.com
-              </td>
+                  {/* ROLE */}
 
-              <td>
-                9988776655
-              </td>
+                  <td>
+                    <span className={`role ${getRoleClass(user.roleName)}`}>
+                      {formatRole(user.roleName)}
+                    </span>
+                  </td>
 
-              <td>
-                <span className="role receptionist">
-                  Receptionist
-                </span>
-              </td>
+                  {/* STATUS */}
 
-              <td>
-                <span className="status active">
-                  Active
-                </span>
-              </td>
+                  <td>
+                    {user.status ? (
+                      <span className="status active">Active</span>
+                    ) : (
+                      <span className="status inactive">Inactive</span>
+                    )}
+                  </td>
 
-              <td className="action-buttons">
+                  {/* ACTIONS */}
 
-                <Link
-                  to="/users/edit/2"
-                  className="edit-btn"
-                >
-                  <FaEdit />
-                </Link>
-
-              </td>
-
-            </tr>
-
-            <tr>
-
-              <td>3</td>
-
-              <td>Dr Shah</td>
-
-              <td>
-                doctor@lensify.com
-              </td>
-
-              <td>
-                9999999999
-              </td>
-
-              <td>
-                <span className="role doctor">
-                  Optometrist
-                </span>
-              </td>
-
-              <td>
-                <span className="status inactive">
-                  Inactive
-                </span>
-              </td>
-
-              <td className="action-buttons">
-
-                <Link
-                  to="/users/edit/3"
-                  className="edit-btn"
-                >
-                  <FaEdit />
-                </Link>
-
-              </td>
-
-            </tr>
-
+                  <td className="action-buttons">
+                    <Link
+                      to={`/users/edit/${user.userId}`}
+                      className="edit-btn"
+                      title="Edit User"
+                    >
+                      <FaEdit />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
           </tbody>
-
         </table>
-
       </div>
 
+      {/* =========================
+          RESULT COUNT
+      ========================= */}
+
+      {!loading && users.length > 0 && (
+        <div className="user-result-count">
+          Showing <strong>{filteredUsers.length}</strong> of{" "}
+          <strong>{users.length}</strong> users
+        </div>
+      )}
     </div>
   );
 }

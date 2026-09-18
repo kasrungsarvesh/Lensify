@@ -64,6 +64,8 @@ import Settings from "../pages/Settings/Settings";
 /* Not Found */
 import NotFound from "../pages/NotFound";
 
+import Profile from "../pages/Profile/Profile";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -75,6 +77,8 @@ function AppRoutes() {
         {/* Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/register" element={<Register />} />
+        {/*  profile */}
+        <Route path="/profile" element={<Profile />} />
 
         {/* Customers */}
         <Route path="/customers" element={<CustomerList />} />

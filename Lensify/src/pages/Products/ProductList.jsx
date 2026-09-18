@@ -245,6 +245,7 @@ function ProductList() {
                     {/* STOCK */}
 
                     <td>{stock}</td>
+                    
 
                     {/* STATUS */}
 

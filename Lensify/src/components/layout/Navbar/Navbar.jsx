@@ -86,12 +86,12 @@ const Navbar = () => {
 
   return (
     <header className="lensify-navbar">
-      <div className="lensify-navbar-search">
+      {/* <div className="lensify-navbar-search">
         <input type="text" placeholder="Search..." aria-label="Search" />
-      </div>
+      </div> */}
 
       <div className="lensify-navbar-right">
-        <button
+        {/* <button
           type="button"
           className="navbar-notification"
           aria-label="Notifications"
@@ -99,7 +99,7 @@ const Navbar = () => {
         >
           <FaBell />
           <span className="notification-dot"></span>
-        </button>
+        </button> */}
 
         <div className="lensify-user-container" ref={profileRef}>
           <button

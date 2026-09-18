@@ -1,7 +1,6 @@
 import * as yup from "yup";
 
 export const customerSchema = yup.object({
-
   fullName: yup
     .string()
     .required("Customer name is required")
@@ -9,9 +8,7 @@ export const customerSchema = yup.object({
     .max(100, "Maximum 100 characters")
     .matches(/^[A-Za-z ]+$/, "Only letters are allowed"),
 
-  gender: yup
-    .string()
-    .required("Please select gender"),
+  gender: yup.string().required("Please select gender"),
 
   dob: yup
     .date()
@@ -36,25 +33,17 @@ export const customerSchema = yup.object({
     .test(
       "alternatePhone",
       "Alternate mobile number must be 10 digits",
-      (value) => !value || /^[6-9][0-9]{9}$/.test(value)
+      (value) => !value || /^[6-9][0-9]{9}$/.test(value),
     ),
 
   email: yup
     .string()
-    .email("Invalid email")
-    .nullable(),
+    .required("Email is required.")
+    .email("Enter a valid email address."),
 
-  address: yup
-    .string()
-    .required("Address is required")
-    .min(5),
+  address: yup.string().required("Address is required").min(5),
 
-  city: yup
-    .string()
-    .required("City is required"),
+  city: yup.string().required("City is required"),
 
-  referenceBy: yup
-    .string()
-    .nullable()
-
+  referenceBy: yup.string().nullable(),
 });

@@ -1,220 +1,325 @@
 import { useEffect, useState } from "react";
-import { FaSave, FaEye, FaSearch, FaTimes } from "react-icons/fa";
-import { searchCustomers } from "../../api/customerApi";
-import api from "../../api/axios";
+import { FaSave, FaEye, FaInfoCircle } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+import { createPrescription } from "../../api/prescriptionApi";
+import { getAllCustomers } from "../../api/customerApi";
+
+import { successToast, errorToast } from "../../utils/toast";
+import { prescriptionSchema } from "../../validations/prescriptionValidation";
+
 import "./AddPrescription.css";
 
+/* =========================================================
+   INFORMATION TOOLTIP
+========================================================= */
+
+function InfoTooltip({ title, children }) {
+  return (
+    <span className="info-tooltip-wrapper">
+      <FaInfoCircle className="info-icon" />
+
+      <span className="info-tooltip">
+        <span className="info-tooltip-title">{title}</span>
+
+        <span className="info-tooltip-content">{children}</span>
+      </span>
+    </span>
+  );
+}
+
+/* =========================================================
+   ADD PRESCRIPTION
+========================================================= */
+
 function AddPrescription() {
-  // =========================
-  // CUSTOMER STATES
-  // =========================
+  /* =======================================================
+     STATE
+  ======================================================= */
+
+  const [customers, setCustomers] = useState([]);
 
   const [customerSearch, setCustomerSearch] = useState("");
-  const [customerResults, setCustomerResults] = useState([]);
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [searchingCustomers, setSearchingCustomers] = useState(false);
 
-  // =========================
-  // FORM DATA
-  // =========================
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
 
-  const getTodayDate = () => {
+  const [saving, setSaving] = useState(false);
+
+  /* =======================================================
+     CURRENT DATE
+     Returns YYYY-MM-DD for input[type="date"]
+  ======================================================= */
+
+  const getCurrentDate = () => {
     const today = new Date();
 
     const year = today.getFullYear();
+
     const month = String(today.getMonth() + 1).padStart(2, "0");
+
     const day = String(today.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   };
 
-  const [formData, setFormData] = useState({
-    customerId: "",
-    prescriptionDate: getTodayDate(),
-    doctorName: "",
+  /* =======================================================
+     REACT HOOK FORM
+  ======================================================= */
 
-    rightEyeSph: "",
-    rightEyeCyl: "",
-    rightEyeAxis: "",
-    rightEyeVa: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(prescriptionSchema),
 
-    leftEyeSph: "",
-    leftEyeCyl: "",
-    leftEyeAxis: "",
-    leftEyeVa: "",
+    mode: "onSubmit",
 
-    pdDistance: "",
-    pdNear: "",
+    reValidateMode: "onChange",
 
-    lensType: "",
-    lensIndex: "",
-    coating: "",
+    defaultValues: {
+      customerId: "",
 
-    remarks: "",
+      doctorName: "",
+
+      prescriptionDate: getCurrentDate(),
+
+      /* RIGHT EYE */
+
+      rightEyeSph: "",
+
+      rightEyeCyl: "",
+
+      rightEyeAxis: "",
+
+      rightEyeVa: "",
+
+      /* LEFT EYE */
+
+      leftEyeSph: "",
+
+      leftEyeCyl: "",
+
+      leftEyeAxis: "",
+
+      leftEyeVa: "",
+
+      /* PD */
+
+      pdDistance: "",
+
+      pdNear: "",
+
+      /* LENS */
+
+      lensType: "",
+
+      lensIndex: "",
+
+      coating: "",
+
+      /* REMARKS */
+
+      remarks: "",
+    },
   });
 
-  const [saving, setSaving] = useState(false);
-
-  // =========================
-  // CUSTOMER SEARCH
-  // =========================
+  /* =======================================================
+     LOAD CUSTOMERS
+  ======================================================= */
 
   useEffect(() => {
-    const searchCustomerData = async () => {
-      if (!customerSearch.trim()) {
-        setCustomerResults([]);
-        return;
-      }
+    fetchCustomers();
+  }, []);
 
-      // Don't search again if customer already selected
-      if (selectedCustomer) {
-        return;
-      }
+  const fetchCustomers = async () => {
+    try {
+      setLoadingCustomers(true);
 
-      try {
-        setSearchingCustomers(true);
+      const response = await getAllCustomers();
 
-        const response = await searchCustomers(customerSearch.trim());
+      const data = response?.data?.data;
 
-        console.log("Customer Search Response:", response.data);
+      setCustomers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to load customers:", error);
 
-        setCustomerResults(response.data?.data || []);
-      } catch (error) {
-        console.error("Customer search error:", error);
-        setCustomerResults([]);
-      } finally {
-        setSearchingCustomers(false);
-      }
-    };
-
-    const timer = setTimeout(searchCustomerData, 350);
-
-    return () => clearTimeout(timer);
-  }, [customerSearch, selectedCustomer]);
-
-  // =========================
-  // FORM CHANGE
-  // =========================
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+      errorToast(error.response?.data?.message || "Unable to load customers.");
+    } finally {
+      setLoadingCustomers(false);
+    }
   };
 
-  // =========================
-  // SELECT CUSTOMER
-  // =========================
+  /* =======================================================
+     CUSTOMER SEARCH
+     
+     IMPORTANT:
+     Search is ONLY against customerName.
+  ======================================================= */
 
-  const handleSelectCustomer = (customer) => {
+  const filteredCustomers = customerSearch.trim()
+    ? customers.filter((customer) => {
+        const customerName = customer.customerName || "";
+
+        return customerName
+          .toLowerCase()
+          .includes(customerSearch.trim().toLowerCase());
+      })
+    : [];
+
+  /* =======================================================
+     CUSTOMER SEARCH INPUT
+  ======================================================= */
+
+  const handleCustomerSearch = (value) => {
+    setCustomerSearch(value);
+
+    /*
+     * If user starts typing after previously selecting
+     * a customer, remove the selected customer first.
+     */
+
+    if (selectedCustomer) {
+      setSelectedCustomer(null);
+
+      setValue("customerId", "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
+
+  /* =======================================================
+     SELECT CUSTOMER
+  ======================================================= */
+
+  const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
 
-    setFormData((previous) => ({
-      ...previous,
-      customerId: customer.customerId,
-    }));
-
     setCustomerSearch("");
-    setCustomerResults([]);
+
+    setValue("customerId", customer.customerId, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
-  // =========================
-  // REMOVE CUSTOMER
-  // =========================
+  /* =======================================================
+     CHANGE CUSTOMER
+  ======================================================= */
 
   const handleRemoveCustomer = () => {
     setSelectedCustomer(null);
 
-    setFormData((previous) => ({
-      ...previous,
-      customerId: "",
-    }));
-
     setCustomerSearch("");
+
+    setValue("customerId", "", {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
-  // =========================
-  // SUBMIT PRESCRIPTION
-  // =========================
+  /* =======================================================
+     SUBMIT
+  ======================================================= */
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!selectedCustomer) {
-      alert("Please select a customer.");
-      return;
-    }
-
-    if (!formData.prescriptionDate) {
-      alert("Please select prescription date.");
-      return;
-    }
-
-    const requestData = {
-      customerId: Number(formData.customerId),
-
-      prescriptionDate: formData.prescriptionDate,
-
-      doctorName: formData.doctorName || null,
-
-      rightEyeSph:
-        formData.rightEyeSph === "" ? null : Number(formData.rightEyeSph),
-
-      rightEyeCyl:
-        formData.rightEyeCyl === "" ? null : Number(formData.rightEyeCyl),
-
-      rightEyeAxis:
-        formData.rightEyeAxis === "" ? null : Number(formData.rightEyeAxis),
-
-      rightEyeVa: formData.rightEyeVa || null,
-
-      leftEyeSph:
-        formData.leftEyeSph === "" ? null : Number(formData.leftEyeSph),
-
-      leftEyeCyl:
-        formData.leftEyeCyl === "" ? null : Number(formData.leftEyeCyl),
-
-      leftEyeAxis:
-        formData.leftEyeAxis === "" ? null : Number(formData.leftEyeAxis),
-
-      leftEyeVa: formData.leftEyeVa || null,
-
-      pdDistance:
-        formData.pdDistance === "" ? null : Number(formData.pdDistance),
-
-      pdNear: formData.pdNear === "" ? null : Number(formData.pdNear),
-
-      lensType: formData.lensType || null,
-
-      lensIndex: formData.lensIndex || null,
-
-      coating: formData.coating || null,
-
-      remarks: formData.remarks || null,
-    };
-
+  const onSubmit = async (data) => {
     try {
       setSaving(true);
 
-      console.log("Prescription Request:", requestData);
+      const request = {
+        customerId: Number(data.customerId),
 
-      const response = await api.post("/prescriptions", requestData);
+        prescriptionDate: data.prescriptionDate,
 
-      console.log("Prescription Response:", response.data);
+        doctorName: data.doctorName?.trim() || null,
 
-      alert("Prescription saved successfully.");
+        /* =================================================
+           RIGHT EYE
+        ================================================= */
 
-      // Reset form
-      setSelectedCustomer(null);
-      setCustomerSearch("");
+        rightEyeSph: Number(data.rightEyeSph),
 
-      setFormData({
+        rightEyeCyl:
+          data.rightEyeCyl === "" || data.rightEyeCyl === null
+            ? null
+            : Number(data.rightEyeCyl),
+
+        rightEyeAxis:
+          data.rightEyeAxis === "" || data.rightEyeAxis === null
+            ? null
+            : Number(data.rightEyeAxis),
+
+        rightEyeVa: data.rightEyeVa?.trim() || null,
+
+        /* =================================================
+           LEFT EYE
+        ================================================= */
+
+        leftEyeSph: Number(data.leftEyeSph),
+
+        leftEyeCyl:
+          data.leftEyeCyl === "" || data.leftEyeCyl === null
+            ? null
+            : Number(data.leftEyeCyl),
+
+        leftEyeAxis:
+          data.leftEyeAxis === "" || data.leftEyeAxis === null
+            ? null
+            : Number(data.leftEyeAxis),
+
+        leftEyeVa: data.leftEyeVa?.trim() || null,
+
+        /* =================================================
+           PD
+        ================================================= */
+
+        pdDistance: Number(data.pdDistance),
+
+        pdNear:
+          data.pdNear === "" || data.pdNear === null
+            ? null
+            : Number(data.pdNear),
+
+        /* =================================================
+           LENS
+        ================================================= */
+
+        lensType: data.lensType || null,
+
+        lensIndex: data.lensIndex || null,
+
+        coating: data.coating || null,
+
+        /* =================================================
+           REMARKS
+        ================================================= */
+
+        remarks: data.remarks?.trim() || null,
+      };
+
+      console.log("Prescription Request:", request);
+
+      const response = await createPrescription(request);
+
+      successToast(response.data.message || "Prescription saved successfully.");
+
+      /*
+       * Reset the form.
+       * Keep today's date instead of leaving it blank.
+       */
+
+      reset({
         customerId: "",
-        prescriptionDate: "",
+
         doctorName: "",
+
+        prescriptionDate: getCurrentDate(),
 
         rightEyeSph: "",
         rightEyeCyl: "",
@@ -235,28 +340,48 @@ function AddPrescription() {
 
         remarks: "",
       });
+
+      setSelectedCustomer(null);
+
+      setCustomerSearch("");
     } catch (error) {
-      console.error("Save prescription error:", error);
+      console.error("Prescription save error:", error);
 
-      console.error("Backend error:", error.response?.data);
-
-      alert(error.response?.data?.message || "Unable to save prescription.");
+      errorToast(
+        error.response?.data?.message || "Failed to save prescription.",
+      );
     } finally {
       setSaving(false);
     }
   };
 
+  /* =======================================================
+     FIELD ERROR
+  ======================================================= */
+
+  const FieldError = ({ name }) => {
+    if (!errors[name]) {
+      return null;
+    }
+
+    return <small className="field-error">{errors[name]?.message}</small>;
+  };
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
   return (
-    <div className="prescription-page">
-      {/* ========================================
-          PAGE HEADER
-      ======================================== */}
+    <div className="add-prescription-page">
+      {/* ===================================================
+          HEADER
+      =================================================== */}
 
       <div className="page-header">
         <div>
           <h2>Add Prescription</h2>
 
-          <p>Manage customer eye power and prescription details</p>
+          <p>Manage customer eye power details</p>
         </div>
 
         <div className="header-icon">
@@ -264,274 +389,352 @@ function AddPrescription() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        {/* ========================================
+      {/* ===================================================
+          FORM
+      =================================================== */}
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        {/* =================================================
             CUSTOMER INFORMATION
-        ======================================== */}
+        ================================================= */}
 
         <div className="card">
           <h3>Customer Information</h3>
 
-          <div className="customer-grid">
-            {/* CUSTOMER SEARCH */}
+          <div className="grid-3">
+            {/* =============================================
+                CUSTOMER SEARCH
+            ============================================= */}
 
-            <div className="customer-search-wrapper">
+            <div className="form-group customer-search-group">
               <label>
                 Customer <span>*</span>
               </label>
 
-              {!selectedCustomer ? (
-                <>
-                  <div className="customer-search-box">
-                    <FaSearch />
+              <div className="customer-search-container">
+                {/* =========================================
+                    SELECTED CUSTOMER
+                ========================================= */}
+
+                {selectedCustomer ? (
+                  <div className="selected-customer">
+                    <div className="selected-customer-main">
+                      <div className="selected-customer-avatar">
+                        {(selectedCustomer.customerName || "C")
+                          .charAt(0)
+                          .toUpperCase()}
+                      </div>
+
+                      <div className="selected-customer-info">
+                        <strong>{selectedCustomer.customerName}</strong>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="remove-customer"
+                      onClick={handleRemoveCustomer}
+                      title="Change customer"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* ===================================
+                        SEARCH INPUT
+                    =================================== */}
 
                     <input
                       type="text"
-                      placeholder="Search by name, code or mobile..."
                       value={customerSearch}
-                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      onChange={(e) => handleCustomerSearch(e.target.value)}
+                      placeholder={
+                        loadingCustomers
+                          ? "Loading customers..."
+                          : "Search customer name..."
+                      }
+                      autoComplete="off"
+                      disabled={loadingCustomers}
+                      className={errors.customerId ? "input-error" : ""}
                     />
 
-                    {searchingCustomers && (
-                      <span className="search-loader">...</span>
-                    )}
-                  </div>
+                    {/* ===================================
+                        SEARCH RESULTS
+                    =================================== */}
 
-                  {/* SEARCH RESULTS */}
-
-                  {customerSearch.trim() && !searchingCustomers && (
-                    <div className="customer-results">
-                      {customerResults.length > 0 ? (
-                        customerResults.map((customer) => (
-                          <button
-                            type="button"
-                            key={customer.customerId}
-                            className="customer-result"
-                            onClick={() => handleSelectCustomer(customer)}
-                          >
-                            <div className="customer-result-avatar">
-                              {customer.customerName?.charAt(0)?.toUpperCase()}
-                            </div>
-
-                            <div className="customer-result-info">
-                              <div className="customer-result-name">
-                                {customer.customerName}
+                    {!loadingCustomers &&
+                      customerSearch.trim() !== "" &&
+                      filteredCustomers.length > 0 && (
+                        <div className="customer-results">
+                          {filteredCustomers.map((customer) => (
+                            <button
+                              type="button"
+                              key={customer.customerId}
+                              className="customer-result"
+                              onClick={() => handleCustomerSelect(customer)}
+                            >
+                              <div className="customer-result-avatar">
+                                {(customer.customerName || "C")
+                                  .charAt(0)
+                                  .toUpperCase()}
                               </div>
 
-                              <div className="customer-result-meta">
-                                <span>{customer.customerCode}</span>
-
-                                <span>•</span>
-
-                                <span>{customer.mobileNumber}</span>
-
-                                {customer.city && (
-                                  <>
-                                    <span>•</span>
-
-                                    <span>{customer.city}</span>
-                                  </>
-                                )}
+                              <div className="customer-result-info">
+                                <span className="customer-result-name">
+                                  {customer.customerName || "Unnamed Customer"}
+                                </span>
                               </div>
-                            </div>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="no-customer">No customer found</div>
+                            </button>
+                          ))}
+                        </div>
                       )}
-                    </div>
-                  )}
-                </>
-              ) : (
-                /* ========================================
-                   SELECTED CUSTOMER
-                ======================================== */
 
-                <div className="selected-customer">
-                  <div className="selected-customer-main">
-                    <div className="selected-customer-avatar">
-                      {selectedCustomer.customerName?.charAt(0)?.toUpperCase()}
-                    </div>
+                    {/* ===================================
+                        NO RESULTS
+                    =================================== */}
 
-                    <div className="selected-customer-info">
-                      <strong>{selectedCustomer.customerName}</strong>
+                    {!loadingCustomers &&
+                      customerSearch.trim() !== "" &&
+                      filteredCustomers.length === 0 && (
+                        <div className="customer-no-results">
+                          No customer found
+                        </div>
+                      )}
+                  </>
+                )}
+              </div>
 
-                      <div className="selected-customer-details">
-                        <span>{selectedCustomer.customerCode}</span>
-
-                        <span>{selectedCustomer.mobileNumber}</span>
-
-                        {selectedCustomer.city && (
-                          <span>{selectedCustomer.city}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="remove-customer"
-                    onClick={handleRemoveCustomer}
-                    title="Remove customer"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              )}
+              <FieldError name="customerId" />
             </div>
 
-            {/* DOCTOR */}
+            {/* =============================================
+                DOCTOR
+            ============================================= */}
 
             <div className="form-group">
               <label>Doctor Name</label>
 
               <input
                 type="text"
-                name="doctorName"
+                {...register("doctorName")}
                 placeholder="Enter doctor name"
-                value={formData.doctorName}
-                onChange={handleChange}
               />
+
+              <FieldError name="doctorName" />
             </div>
 
-            {/* DATE */}
+            {/* =============================================
+                PRESCRIPTION DATE
+            ============================================= */}
 
             <div className="form-group">
               <label>
                 Prescription Date <span>*</span>
+                <InfoTooltip title="Prescription Date">
+                  Date on which the eye examination or prescription was
+                  recorded.
+                </InfoTooltip>
               </label>
 
               <input
                 type="date"
-                name="prescriptionDate"
-                value={formData.prescriptionDate}
-                onChange={handleChange}
+                {...register("prescriptionDate")}
+                className={errors.prescriptionDate ? "input-error" : ""}
               />
+
+              <FieldError name="prescriptionDate" />
             </div>
           </div>
         </div>
 
-        {/* ========================================
-            EYE POWER
-        ======================================== */}
+        {/* =================================================
+            EYE POWER DETAILS
+        ================================================= */}
 
         <div className="card">
-          <h3>Eye Power Details</h3>
+          <h3>
+            Eye Power Details
+            <InfoTooltip title="Eye Power">
+              The refractive prescription is recorded separately for the right
+              eye (OD) and left eye (OS).
+            </InfoTooltip>
+          </h3>
 
-          <div className="table-wrapper">
+          <div className="power-table-wrapper">
             <table className="power-table">
+              {/* =========================================
+                  TABLE HEADER
+              ========================================= */}
+
               <thead>
                 <tr>
                   <th>Eye</th>
-                  <th>SPH</th>
-                  <th>CYL</th>
-                  <th>AXIS</th>
-                  <th>VA</th>
+
+                  <th>
+                    SPH
+                    <InfoTooltip title="SPH - Sphere">
+                      Sphere is the main lens power. Negative values are
+                      commonly used for myopia and positive values for
+                      hyperopia.
+                    </InfoTooltip>
+                  </th>
+
+                  <th>
+                    CYL
+                    <InfoTooltip title="CYL - Cylinder">
+                      Cylinder represents the amount of astigmatic correction.
+                    </InfoTooltip>
+                  </th>
+
+                  <th>
+                    AXIS
+                    <InfoTooltip title="AXIS">
+                      Axis specifies the orientation of the cylinder correction.
+                      Valid values are 0° to 180°.
+                    </InfoTooltip>
+                  </th>
+
+                  <th>
+                    VA
+                    <InfoTooltip title="VA - Visual Acuity">
+                      Visual acuity records how clearly the patient can see, for
+                      example 6/6 or 20/20.
+                    </InfoTooltip>
+                  </th>
                 </tr>
               </thead>
 
+              {/* =========================================
+                  TABLE BODY
+              ========================================= */}
+
               <tbody>
-                {/* RIGHT */}
+                {/* =======================================
+                    RIGHT EYE
+                ======================================= */}
 
                 <tr>
-                  <td>
-                    <strong>Right Eye</strong>
-                  </td>
+                  <td className="eye-name">Right Eye (OD)</td>
+
+                  {/* SPH */}
 
                   <td>
                     <input
                       type="number"
                       step="0.01"
-                      name="rightEyeSph"
+                      {...register("rightEyeSph")}
                       placeholder="SPH"
-                      value={formData.rightEyeSph}
-                      onChange={handleChange}
+                      className={errors.rightEyeSph ? "input-error" : ""}
                     />
+
+                    <FieldError name="rightEyeSph" />
                   </td>
+
+                  {/* CYL */}
 
                   <td>
                     <input
                       type="number"
                       step="0.01"
-                      name="rightEyeCyl"
+                      {...register("rightEyeCyl")}
                       placeholder="CYL"
-                      value={formData.rightEyeCyl}
-                      onChange={handleChange}
+                      className={errors.rightEyeCyl ? "input-error" : ""}
                     />
+
+                    <FieldError name="rightEyeCyl" />
                   </td>
+
+                  {/* AXIS */}
 
                   <td>
                     <input
                       type="number"
                       min="0"
                       max="180"
-                      name="rightEyeAxis"
+                      step="1"
+                      {...register("rightEyeAxis")}
                       placeholder="AXIS"
-                      value={formData.rightEyeAxis}
-                      onChange={handleChange}
+                      className={errors.rightEyeAxis ? "input-error" : ""}
                     />
+
+                    <FieldError name="rightEyeAxis" />
                   </td>
+
+                  {/* VA */}
 
                   <td>
                     <input
                       type="text"
-                      name="rightEyeVa"
-                      placeholder="VA"
-                      value={formData.rightEyeVa}
-                      onChange={handleChange}
+                      {...register("rightEyeVa")}
+                      placeholder="e.g. 6/6"
                     />
+
+                    <FieldError name="rightEyeVa" />
                   </td>
                 </tr>
 
-                {/* LEFT */}
+                {/* =======================================
+                    LEFT EYE
+                ======================================= */}
 
                 <tr>
-                  <td>
-                    <strong>Left Eye</strong>
-                  </td>
+                  <td className="eye-name">Left Eye (OS)</td>
+
+                  {/* SPH */}
 
                   <td>
                     <input
                       type="number"
                       step="0.01"
-                      name="leftEyeSph"
+                      {...register("leftEyeSph")}
                       placeholder="SPH"
-                      value={formData.leftEyeSph}
-                      onChange={handleChange}
+                      className={errors.leftEyeSph ? "input-error" : ""}
                     />
+
+                    <FieldError name="leftEyeSph" />
                   </td>
+
+                  {/* CYL */}
 
                   <td>
                     <input
                       type="number"
                       step="0.01"
-                      name="leftEyeCyl"
+                      {...register("leftEyeCyl")}
                       placeholder="CYL"
-                      value={formData.leftEyeCyl}
-                      onChange={handleChange}
+                      className={errors.leftEyeCyl ? "input-error" : ""}
                     />
+
+                    <FieldError name="leftEyeCyl" />
                   </td>
+
+                  {/* AXIS */}
 
                   <td>
                     <input
                       type="number"
                       min="0"
                       max="180"
-                      name="leftEyeAxis"
+                      step="1"
+                      {...register("leftEyeAxis")}
                       placeholder="AXIS"
-                      value={formData.leftEyeAxis}
-                      onChange={handleChange}
+                      className={errors.leftEyeAxis ? "input-error" : ""}
                     />
+
+                    <FieldError name="leftEyeAxis" />
                   </td>
+
+                  {/* VA */}
 
                   <td>
                     <input
                       type="text"
-                      name="leftEyeVa"
-                      placeholder="VA"
-                      value={formData.leftEyeVa}
-                      onChange={handleChange}
+                      {...register("leftEyeVa")}
+                      placeholder="e.g. 6/6"
                     />
+
+                    <FieldError name="leftEyeVa" />
                   </td>
                 </tr>
               </tbody>
@@ -539,54 +742,110 @@ function AddPrescription() {
           </div>
         </div>
 
-        {/* ========================================
+        {/* =================================================
+            PUPILLARY DISTANCE
+        ================================================= */}
+
+        <div className="card">
+          <h3>
+            Pupillary Distance
+            <InfoTooltip title="PD - Pupillary Distance">
+              PD is the distance between the pupils, measured in millimetres. It
+              is used during dispensing to position the optical centers
+              correctly.
+              <br />
+              <br />
+              Note: PD is technically a dispensing/fitting measurement rather
+              than part of the clinical prescription itself.
+            </InfoTooltip>
+          </h3>
+
+          <div className="grid-2">
+            {/* =============================================
+                DISTANCE PD
+            ============================================= */}
+
+            <div className="form-group">
+              <label>
+                PD Distance <span>*</span>
+                <InfoTooltip title="PD Distance">
+                  Distance PD is the pupillary distance measured while looking
+                  at a distant target.
+                  <br />
+                  <br />
+                  Enter the measured binocular PD in mm.
+                </InfoTooltip>
+              </label>
+
+              <input
+                type="number"
+                step="0.1"
+                min="40"
+                max="80"
+                {...register("pdDistance")}
+                placeholder="e.g. 62"
+                className={errors.pdDistance ? "input-error" : ""}
+              />
+
+              <FieldError name="pdDistance" />
+            </div>
+
+            {/* =============================================
+                NEAR PD
+            ============================================= */}
+
+            <div className="form-group">
+              <label>
+                PD Near
+                <InfoTooltip title="PD Near">
+                  Near PD is measured for close working distance.
+                  <br />
+                  <br />
+                  It is generally smaller than distance PD because the eyes
+                  converge when looking at a near object.
+                  <br />
+                  <br />
+                  Use the measured value when available.
+                </InfoTooltip>
+              </label>
+
+              <input
+                type="number"
+                step="0.1"
+                min="35"
+                max="80"
+                {...register("pdNear")}
+                placeholder="e.g. 59"
+                className={errors.pdNear ? "input-error" : ""}
+              />
+
+              <FieldError name="pdNear" />
+            </div>
+          </div>
+        </div>
+
+        {/* =================================================
             LENS INFORMATION
-        ======================================== */}
+        ================================================= */}
 
         <div className="card">
           <h3>Lens Information</h3>
 
           <div className="grid-2">
-            {/* PD DISTANCE */}
+            {/* =============================================
+                LENS TYPE
+            ============================================= */}
 
             <div className="form-group">
-              <label>PD Distance</label>
+              <label>
+                Lens Type
+                <InfoTooltip title="Lens Type">
+                  Indicates the type of spectacle lens being considered for
+                  dispensing.
+                </InfoTooltip>
+              </label>
 
-              <input
-                type="number"
-                step="0.01"
-                name="pdDistance"
-                placeholder="Enter PD distance"
-                value={formData.pdDistance}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* PD NEAR */}
-
-            <div className="form-group">
-              <label>PD Near</label>
-
-              <input
-                type="number"
-                step="0.01"
-                name="pdNear"
-                placeholder="Enter PD near"
-                value={formData.pdNear}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* LENS TYPE */}
-
-            <div className="form-group">
-              <label>Lens Type</label>
-
-              <select
-                name="lensType"
-                value={formData.lensType}
-                onChange={handleChange}
-              >
+              <select {...register("lensType")}>
                 <option value="">Select Lens Type</option>
 
                 <option value="Single Vision">Single Vision</option>
@@ -599,40 +858,55 @@ function AddPrescription() {
               </select>
             </div>
 
-            {/* INDEX */}
+            {/* =============================================
+                LENS INDEX
+            ============================================= */}
 
             <div className="form-group">
-              <label>Lens Index</label>
+              <label>
+                Lens Index
+                <InfoTooltip title="Lens Index">
+                  Refractive index describes the optical material's ability to
+                  bend light. Higher-index materials can allow thinner lenses
+                  for the same prescription.
+                </InfoTooltip>
+              </label>
 
-              <select
-                name="lensIndex"
-                value={formData.lensIndex}
-                onChange={handleChange}
-              >
+              <select {...register("lensIndex")}>
                 <option value="">Select Lens Index</option>
 
                 <option value="1.50">1.50</option>
+
                 <option value="1.56">1.56</option>
+
                 <option value="1.60">1.60</option>
+
                 <option value="1.67">1.67</option>
+
+                <option value="1.74">1.74</option>
               </select>
             </div>
 
-            {/* COATING */}
+            {/* =============================================
+                COATING
+            ============================================= */}
 
             <div className="form-group">
-              <label>Coating</label>
+              <label>
+                Coating
+                <InfoTooltip title="Lens Coating">
+                  A lens coating is an applied treatment used to provide
+                  characteristics such as reflection reduction, scratch
+                  resistance, or UV-related protection depending on the coating.
+                </InfoTooltip>
+              </label>
 
-              <select
-                name="coating"
-                value={formData.coating}
-                onChange={handleChange}
-              >
+              <select {...register("coating")}>
                 <option value="">Select Coating</option>
 
-                <option value="Blue Cut">Blue Cut</option>
-
                 <option value="Anti Glare">Anti Glare</option>
+
+                <option value="Blue Cut">Blue Cut</option>
 
                 <option value="Hard Coat">Hard Coat</option>
 
@@ -642,25 +916,26 @@ function AddPrescription() {
           </div>
         </div>
 
-        {/* ========================================
+        {/* =================================================
             REMARKS
-        ======================================== */}
+        ================================================= */}
 
         <div className="card">
           <h3>Remarks</h3>
 
           <textarea
             rows="5"
-            name="remarks"
-            placeholder="Enter any additional prescription notes..."
-            value={formData.remarks}
-            onChange={handleChange}
+            {...register("remarks")}
+            placeholder="Enter any additional remarks..."
+            className={errors.remarks ? "input-error" : ""}
           />
+
+          <FieldError name="remarks" />
         </div>
 
-        {/* ========================================
+        {/* =================================================
             SAVE BUTTON
-        ======================================== */}
+        ================================================= */}
 
         <div className="prescription-actions">
           <button

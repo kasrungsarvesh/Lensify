@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaUserEdit, FaSave, FaArrowLeft } from "react-icons/fa";
 
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
 import { getCustomerById, updateCustomer } from "../../api/customerApi";
 
 import { successToast, errorToast } from "../../utils/toast";
+
+import { customerSchema } from "../../validations/customerValidation";
 
 import "./EditCustomer.css";
 
@@ -12,145 +17,120 @@ function EditCustomer() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [customer, setCustomer] = useState({
-    customerCode: "",
-    fullName: "",
-    gender: "",
-    dob: "",
-    age: "",
-    phone: "",
-    alternatePhone: "",
-    email: "",
-    address: "",
-    city: "",
-    referenceBy: "",
-    status: true,
+  const [loading, setLoading] = useState(true);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(customerSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    defaultValues: {
+      customerCode: "",
+      fullName: "",
+      gender: "",
+      dob: "",
+      age: "",
+      phone: "",
+      alternatePhone: "",
+      email: "",
+      address: "",
+      city: "",
+      referenceBy: "",
+      status: true,
+    },
   });
+
+  /* =========================
+     FETCH CUSTOMER
+     ========================= */
 
   useEffect(() => {
     fetchCustomer();
-  }, []);
+  }, [id]);
 
   const fetchCustomer = async () => {
     try {
+      setLoading(true);
+
       const response = await getCustomerById(id);
       const data = response.data.data;
 
-      setCustomer({
+      reset({
         customerCode: data.customerCode || "",
         fullName: data.customerName || "",
         gender: data.gender || "",
         dob: data.dateOfBirth || "",
-        age: data.age || "",
+        age: data.age ?? "",
         phone: data.mobileNumber || "",
         alternatePhone: data.alternatePhone || "",
         email: data.email || "",
         address: data.address || "",
         city: data.city || "",
         referenceBy: data.referenceBy || "",
-        status: data.status,
+        status: data.status ?? true,
       });
     } catch (error) {
+      console.error(error);
       errorToast("Unable to load customer.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    setCustomer({
-      ...customer,
-      [e.target.name]: e.target.value,
-    });
-  };
+  /* =========================
+     UPDATE CUSTOMER
+     ========================= */
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validation
-    if (customer.fullName.trim().length < 3) {
-      errorToast("Customer name must be at least 3 characters.");
-      return;
-    }
-
-    if (!/^[A-Za-z ]+$/.test(customer.fullName)) {
-      errorToast("Customer name should contain only letters.");
-      return;
-    }
-
-    if (!customer.gender) {
-      errorToast("Please select gender.");
-      return;
-    }
-
-    if (!customer.dob) {
-      errorToast("Please select date of birth.");
-      return;
-    }
-
-    if (!customer.age || customer.age < 1 || customer.age > 120) {
-      errorToast("Enter valid age.");
-      return;
-    }
-
-    if (!/^[6-9][0-9]{9}$/.test(customer.phone)) {
-      errorToast("Enter valid mobile number.");
-      return;
-    }
-
-    if (
-      customer.alternatePhone &&
-      !/^[6-9][0-9]{9}$/.test(customer.alternatePhone)
-    ) {
-      errorToast("Enter valid alternate mobile number.");
-      return;
-    }
-
-    if (customer.alternatePhone && customer.phone === customer.alternatePhone) {
-      errorToast("Mobile and alternate mobile cannot be same.");
-      return;
-    }
-
-    if (customer.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
-      errorToast("Enter valid email.");
-      return;
-    }
-
-    if (!customer.address.trim()) {
-      errorToast("Address is required.");
-      return;
-    }
-
-    if (!customer.city.trim()) {
-      errorToast("City is required.");
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
       const request = {
-        customerName: customer.fullName,
-        gender: customer.gender,
-        dateOfBirth: customer.dob,
-        age: Number(customer.age),
-        mobileNumber: customer.phone,
-        alternatePhone: customer.alternatePhone,
-        email: customer.email,
-        address: customer.address,
-        city: customer.city,
-        referenceBy: customer.referenceBy,
-        status: customer.status,
+        customerName: data.fullName.trim(),
+        gender: data.gender,
+        dateOfBirth: data.dob,
+        age: Number(data.age),
+        mobileNumber: data.phone.trim(),
+        alternatePhone: data.alternatePhone?.trim() || "",
+        email: data.email.trim(),
+        address: data.address.trim(),
+        city: data.city.trim(),
+        referenceBy: data.referenceBy?.trim() || "",
+        status: true,
       };
 
       const response = await updateCustomer(id, request);
 
-      successToast(response.data.message);
+      successToast(response.data.message || "Customer updated successfully.");
 
       navigate("/customers");
     } catch (error) {
+      console.error(error);
+
       errorToast(error.response?.data?.message || "Failed to update customer.");
     }
   };
 
+  /* =========================
+     LOADING
+     ========================= */
+
+  if (loading) {
+    return (
+      <div className="edit-customer-page">
+        <div className="edit-card">
+          <p>Loading customer...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="edit-customer-page">
+      {/* ================= HEADER ================= */}
+
       <div className="edit-header">
         <div>
           <h2>Edit Customer</h2>
@@ -162,148 +142,152 @@ function EditCustomer() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* ================= PERSONAL INFORMATION ================= */}
+
         <div className="edit-card">
           <h3>Personal Information</h3>
 
           <div className="edit-grid">
+            {/* Customer Code */}
+
             <div>
               <label>Customer Code</label>
 
-              <input type="text" value={customer.customerCode} disabled />
+              <input type="text" {...register("customerCode")} disabled />
             </div>
 
-            <div>
-              <label>Full Name</label>
+            {/* Full Name */}
 
-              <input
-                type="text"
-                name="fullName"
-                value={customer.fullName}
-                onChange={handleChange}
-              />
+            <div>
+              <label>Full Name *</label>
+
+              <input type="text" {...register("fullName")} />
+
+              <small className="error">{errors.fullName?.message}</small>
             </div>
 
-            <div>
-              <label>Gender</label>
+            {/* Gender */}
 
-              <select
-                name="gender"
-                value={customer.gender}
-                onChange={handleChange}
-              >
+            <div>
+              <label>Gender *</label>
+
+              <select {...register("gender")}>
                 <option value="">Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
+
+                <option value="Male">Male</option>
+
+                <option value="Female">Female</option>
+
+                <option value="Other">Other</option>
               </select>
+
+              <small className="error">{errors.gender?.message}</small>
             </div>
+
+            {/* Date of Birth */}
 
             <div>
-              <label>Date Of Birth</label>
+              <label>Date of Birth *</label>
 
-              <input
-                type="date"
-                name="dob"
-                value={customer.dob}
-                onChange={handleChange}
-              />
+              <input type="date" {...register("dob")} />
+
+              <small className="error">{errors.dob?.message}</small>
             </div>
+
+            {/* Age */}
 
             <div>
-              <label>Age</label>
+              <label>Age *</label>
 
-              <input
-                type="number"
-                name="age"
-                value={customer.age}
-                onChange={handleChange}
-              />
+              <input type="number" min="1" max="120" {...register("age")} />
+
+              <small className="error">{errors.age?.message}</small>
             </div>
+
+            {/* Reference By */}
 
             <div>
               <label>Reference By</label>
 
-              <input
-                type="text"
-                name="referenceBy"
-                value={customer.referenceBy}
-                onChange={handleChange}
-              />
+              <input type="text" {...register("referenceBy")} />
+
+              <small className="error">{errors.referenceBy?.message}</small>
             </div>
           </div>
         </div>
+
+        {/* ================= CONTACT INFORMATION ================= */}
 
         <div className="edit-card">
           <h3>Contact Information</h3>
 
           <div className="edit-grid">
-            <div>
-              <label>Phone Number</label>
+            {/* Mobile */}
 
-              <input
-                type="text"
-                name="phone"
-                value={customer.phone}
-                onChange={handleChange}
-              />
+            <div>
+              <label>Mobile Number *</label>
+
+              <input type="text" maxLength="10" {...register("phone")} />
+
+              <small className="error">{errors.phone?.message}</small>
             </div>
+
+            {/* Alternate Mobile */}
 
             <div>
               <label>Alternate Number</label>
 
               <input
                 type="text"
-                name="alternatePhone"
-                value={customer.alternatePhone}
-                onChange={handleChange}
+                maxLength="10"
+                {...register("alternatePhone")}
               />
+
+              <small className="error">{errors.alternatePhone?.message}</small>
             </div>
 
-            <div>
-              <label>Email</label>
+            {/* Email */}
 
-              <input
-                type="email"
-                name="email"
-                value={customer.email}
-                onChange={handleChange}
-              />
+            <div>
+              <label>Email Address *</label>
+
+              <input type="email" {...register("email")} />
+
+              <small className="error">{errors.email?.message}</small>
             </div>
           </div>
         </div>
 
-        {/* Address Information */}
+        {/* ================= ADDRESS INFORMATION ================= */}
 
         <div className="edit-card">
           <h3>Address Information</h3>
 
           <div className="edit-grid">
-            <div className="full-width">
-              <label>Address</label>
+            {/* Address */}
 
-              <textarea
-                rows="4"
-                name="address"
-                value={customer.address}
-                onChange={handleChange}
-              />
+            <div className="full-width">
+              <label>Address *</label>
+
+              <textarea rows="4" {...register("address")} />
+
+              <small className="error">{errors.address?.message}</small>
             </div>
 
-            <div>
-              <label>City</label>
+            {/* City */}
 
-              <input
-                type="text"
-                name="city"
-                value={customer.city}
-                onChange={handleChange}
-              />
+            <div>
+              <label>City *</label>
+
+              <input type="text" {...register("city")} />
+
+              <small className="error">{errors.city?.message}</small>
             </div>
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* ================= BUTTONS ================= */}
 
         <div className="edit-actions">
           <button type="submit" className="update-btn">

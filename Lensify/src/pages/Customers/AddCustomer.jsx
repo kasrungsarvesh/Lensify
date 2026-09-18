@@ -81,10 +81,10 @@ function AddCustomer() {
           <h3>Personal Information</h3>
 
           <div className="customer-grid">
-            <div>
+            {/* <div>
               <label>Customer Code</label>
               <input type="text" value="Auto Generated" disabled />
-            </div>
+            </div> */}
 
             <div>
               <label>Full Name *</label>
@@ -95,7 +95,7 @@ function AddCustomer() {
             </div>
 
             <div>
-              <label>Gender</label>
+              <label>Gender *</label>
 
               <select {...register("gender")}>
                 <option value="">Select Gender</option>
@@ -108,7 +108,7 @@ function AddCustomer() {
             </div>
 
             <div>
-              <label>Date of Birth</label>
+              <label>Date of Birth *</label>
 
               <input type="date" {...register("dob")} />
 
@@ -116,20 +116,20 @@ function AddCustomer() {
             </div>
 
             <div>
-              <label>Age</label>
+              <label>Age *</label>
 
               <input type="number" {...register("age")} />
 
               <small className="error">{errors.age?.message}</small>
             </div>
-
+            {/* 
             <div>
               <label>Reference By</label>
 
               <input type="text" {...register("referenceBy")} />
 
               <small className="error">{errors.referenceBy?.message}</small>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -154,7 +154,7 @@ function AddCustomer() {
             </div>
 
             <div>
-              <label>Email Address</label>
+              <label>Email Address *</label>
 
               <input type="email" {...register("email")} />
 
@@ -168,7 +168,7 @@ function AddCustomer() {
 
           <div className="customer-grid">
             <div className="full-width">
-              <label>Address</label>
+              <label>Address *</label>
 
               <textarea rows="4" {...register("address")} />
 
@@ -176,7 +176,7 @@ function AddCustomer() {
             </div>
 
             <div>
-              <label>City</label>
+              <label>City *</label>
 
               <input type="text" {...register("city")} />
 

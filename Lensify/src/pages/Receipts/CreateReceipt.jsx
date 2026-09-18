@@ -7,7 +7,6 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
 import api from "../../api/axios";
 import "./CreateReceipt.css";
 
@@ -20,6 +19,7 @@ function CreateReceipt() {
 
   const [products, setProducts] = useState([]);
 
+  // Search state for every product row
   const [productSearches, setProductSearches] = useState([""]);
   const [productResults, setProductResults] = useState([[]]);
   const [productSearching, setProductSearching] = useState([false]);
@@ -30,6 +30,7 @@ function CreateReceipt() {
 
   const [lenses, setLenses] = useState([]);
 
+  // Search state for every lens row
   const [lensSearches, setLensSearches] = useState([""]);
   const [lensResults, setLensResults] = useState([[]]);
   const [lensSearching, setLensSearching] = useState([false]);
@@ -40,9 +41,7 @@ function CreateReceipt() {
 
   const [customerSearch, setCustomerSearch] = useState("");
   const [customers, setCustomers] = useState([]);
-
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-
   const [showCustomerResults, setShowCustomerResults] = useState(false);
   const [customerLoading, setCustomerLoading] = useState(false);
 
@@ -57,11 +56,11 @@ function CreateReceipt() {
   // PAYMENT
   // =========================================================
 
-  const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [paidAmount, setPaidAmount] = useState(0);
 
   // =========================================================
-  // GENERATING
+  // SUBMIT LOADING
   // =========================================================
 
   const [generating, setGenerating] = useState(false);
@@ -91,6 +90,7 @@ function CreateReceipt() {
       quantity: 1,
       price: 0,
       total: 0,
+      availableStock: 0,
     },
   ]);
 
@@ -123,12 +123,7 @@ function CreateReceipt() {
 
       console.log("Lens Response:", response.data);
 
-      const allLenses = response.data?.data || [];
-
-      // Only active lenses are available for new receipts
-      const activeLenses = allLenses.filter((lens) => lens.status === true);
-
-      setLenses(activeLenses);
+      setLenses(response.data?.data || []);
     } catch (error) {
       console.error("Fetch lenses error:", error);
       console.error("Backend error:", error.response?.data);
@@ -174,7 +169,6 @@ function CreateReceipt() {
         setShowCustomerResults(true);
       } catch (error) {
         console.error("Customer search error:", error);
-
         console.error("Backend error:", error.response?.data);
 
         setCustomers([]);
@@ -190,6 +184,7 @@ function CreateReceipt() {
 
   // =========================================================
   // PRODUCT AUTOCOMPLETE
+  // Same behavior as AddPrescription
   // =========================================================
 
   useEffect(() => {
@@ -221,14 +216,25 @@ function CreateReceipt() {
       const timer = setTimeout(() => {
         const keyword = search.trim().toLowerCase();
 
-        const results = products.filter((product) => {
-          return (
-            product.productName?.toLowerCase().includes(keyword) ||
-            product.brand?.toLowerCase().includes(keyword) ||
-            product.barcode?.toLowerCase().includes(keyword) ||
-            product.modelNumber?.toLowerCase().includes(keyword)
-          );
-        });
+        const results = products
+          .filter((product) => {
+            return (
+              product.productName?.toLowerCase().includes(keyword) ||
+              product.brand?.toLowerCase().includes(keyword) ||
+              product.barcode?.toLowerCase().includes(keyword) ||
+              product.modelNumber?.toLowerCase().includes(keyword)
+            );
+          })
+          .sort((a, b) => {
+            const aAvailable =
+              a.status?.toLowerCase() === "active" &&
+              Number(a.stockQuantity) > 0;
+            const bAvailable =
+              b.status?.toLowerCase() === "active" &&
+              Number(b.stockQuantity) > 0;
+
+            return Number(bAvailable) - Number(aAvailable);
+          });
 
         setProductResults((previous) => {
           const updated = [...previous];
@@ -253,6 +259,7 @@ function CreateReceipt() {
 
   // =========================================================
   // LENS AUTOCOMPLETE
+  // Same behavior as AddPrescription
   // =========================================================
 
   useEffect(() => {
@@ -285,11 +292,6 @@ function CreateReceipt() {
         const keyword = search.trim().toLowerCase();
 
         const results = lenses.filter((lens) => {
-          // Never show inactive lenses in receipt selection
-          if (lens.status !== true) {
-            return false;
-          }
-
           return (
             lens.brand?.toLowerCase().includes(keyword) ||
             lens.lensType?.toLowerCase().includes(keyword) ||
@@ -299,6 +301,7 @@ function CreateReceipt() {
               .includes(keyword)
           );
         });
+
         setLensResults((previous) => {
           const updated = [...previous];
           updated[index] = results;
@@ -328,7 +331,9 @@ function CreateReceipt() {
     setSelectedCustomer(customer);
 
     setCustomerSearch("");
+
     setCustomers([]);
+
     setShowCustomerResults(false);
 
     console.log("Selected Customer:", customer);
@@ -342,96 +347,14 @@ function CreateReceipt() {
     setSelectedCustomer(null);
 
     setCustomerSearch("");
+
     setCustomers([]);
+
     setShowCustomerResults(false);
   };
 
   // =========================================================
-  // PRODUCT SEARCH CHANGE
-  // =========================================================
-
-  const handleProductSearchChange = (index, value) => {
-    setProductSearches((previous) => {
-      const updated = [...previous];
-      updated[index] = value;
-      return updated;
-    });
-
-    setProductItems((previous) => {
-      const updated = [...previous];
-
-      updated[index] = {
-        ...updated[index],
-        productId: null,
-        product: value,
-      };
-
-      updated[index].total =
-        Number(updated[index].quantity || 0) *
-        Number(updated[index].price || 0);
-
-      return updated;
-    });
-  };
-
-  // =========================================================
-  // SELECT PRODUCT
-  // =========================================================
-
-  const handleProductSelect = (index, product) => {
-    const price = Number(product.sellingPrice) || 0;
-
-    setProductItems((previous) => {
-      const updated = [...previous];
-
-      updated[index] = {
-        ...updated[index],
-        productId: product.productId,
-        product: product.productName || "",
-        quantity: 1,
-        price,
-        total: price,
-      };
-
-      return updated;
-    });
-
-    setProductSearches((previous) => {
-      const updated = [...previous];
-      updated[index] = "";
-      return updated;
-    });
-
-    setProductResults((previous) => {
-      const updated = [...previous];
-      updated[index] = [];
-      return updated;
-    });
-  };
-
-  // =========================================================
-  // PRODUCT ITEM CHANGE
-  // =========================================================
-
-  const handleProductItemChange = (index, field, value) => {
-    setProductItems((previous) => {
-      const updated = [...previous];
-
-      updated[index] = {
-        ...updated[index],
-        [field]: value,
-      };
-
-      updated[index].total =
-        Number(updated[index].quantity || 0) *
-        Number(updated[index].price || 0);
-
-      return updated;
-    });
-  };
-
-  // =========================================================
-  // ADD PRODUCT
+  // PRODUCT ITEMS
   // =========================================================
 
   const addProductItem = () => {
@@ -443,19 +366,14 @@ function CreateReceipt() {
         quantity: 1,
         price: 0,
         total: 0,
+        availableStock: 0,
       },
     ]);
 
     setProductSearches((previous) => [...previous, ""]);
-
     setProductResults((previous) => [...previous, []]);
-
     setProductSearching((previous) => [...previous, false]);
   };
-
-  // =========================================================
-  // REMOVE PRODUCT
-  // =========================================================
 
   const removeProductItem = (index) => {
     if (productItems.length === 1) {
@@ -479,83 +397,45 @@ function CreateReceipt() {
     );
   };
 
-  // =========================================================
-  // LENS SEARCH CHANGE
-  // =========================================================
+  const handleProductItemChange = (index, field, value) => {
+    if (field === "quantity") {
+      const quantity = Number(value);
+      const item = productItems[index];
+      const selectedProduct = products.find(
+        (product) => product.productId === item?.productId,
+      );
+      const availableStock = Number(
+        selectedProduct?.stockQuantity ?? item?.availableStock ?? 0,
+      );
 
-  const handleLensSearchChange = (index, value) => {
-    setLensSearches((previous) => {
-      const updated = [...previous];
-      updated[index] = value;
-      return updated;
-    });
+      if (quantity < 1) {
+        return;
+      }
 
-    setLensItems((previous) => {
-      const updated = [...previous];
+      if (item?.productId && quantity > availableStock) {
+        alert(
+          `Only ${availableStock} units available for ${
+            selectedProduct?.productName || item.product || "this product"
+          }.`,
+        );
+        return;
+      }
 
-      updated[index] = {
-        ...updated[index],
-        lensId: null,
-        lens: value,
-      };
+      setProductItems((previous) => {
+        const updated = [...previous];
+        updated[index] = {
+          ...updated[index],
+          quantity,
+          availableStock,
+          total: quantity * Number(updated[index].price || 0),
+        };
+        return updated;
+      });
 
-      updated[index].total =
-        Number(updated[index].quantity || 0) *
-        Number(updated[index].price || 0);
-
-      return updated;
-    });
-  };
-
-  // =========================================================
-  // SELECT LENS
-  // =========================================================
-
-  const handleLensSelect = (index, lens) => {
-    // Extra protection: inactive lenses cannot be selected
-    if (lens.status !== true) {
-      alert("This lens is inactive and cannot be added to a receipt.");
       return;
     }
 
-    const price = Number(lens.price) || 0;
-
-    const lensName = `${lens.brand} - ${lens.lensType || "Lens"}`;
-
-    setLensItems((previous) => {
-      const updated = [...previous];
-
-      updated[index] = {
-        ...updated[index],
-        lensId: lens.lensId,
-        lens: lensName,
-        quantity: 1,
-        price,
-        total: price,
-      };
-
-      return updated;
-    });
-
-    setLensSearches((previous) => {
-      const updated = [...previous];
-      updated[index] = "";
-      return updated;
-    });
-
-    setLensResults((previous) => {
-      const updated = [...previous];
-      updated[index] = [];
-      return updated;
-    });
-  };
-
-  // =========================================================
-  // LENS ITEM CHANGE
-  // =========================================================
-
-  const handleLensItemChange = (index, field, value) => {
-    setLensItems((previous) => {
+    setProductItems((previous) => {
       const updated = [...previous];
 
       updated[index] = {
@@ -572,7 +452,90 @@ function CreateReceipt() {
   };
 
   // =========================================================
-  // ADD LENS
+  // PRODUCT SEARCH CHANGE
+  // =========================================================
+
+  const handleProductSearchChange = (index, value) => {
+    // Remove previously selected product
+    setProductItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        productId: null,
+        product: value,
+        availableStock: 0,
+      };
+
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
+
+    setProductSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // SELECT PRODUCT
+  // =========================================================
+
+  const handleProductSelect = (index, product) => {
+    const availableStock = Number(product.stockQuantity) || 0;
+    const status = product.status?.toLowerCase();
+
+    if (status !== "active") {
+      alert(
+        `Product "${product.productName}" is inactive and cannot be added to the receipt.`,
+      );
+      return;
+    }
+
+    if (availableStock <= 0) {
+      alert(`Product "${product.productName}" is out of stock.`);
+      return;
+    }
+
+    const price = Number(product.sellingPrice) || 0;
+
+    setProductItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        productId: product.productId,
+        product: product.productName,
+        quantity: 1,
+        price,
+        total: price,
+        availableStock,
+      };
+
+      return updated;
+    });
+
+    // Exactly like AddPrescription:
+    // clear search after selection
+    setProductSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = "";
+      return updated;
+    });
+
+    setProductResults((previous) => {
+      const updated = [...previous];
+      updated[index] = [];
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // LENS ITEMS
   // =========================================================
 
   const addLensItem = () => {
@@ -584,19 +547,14 @@ function CreateReceipt() {
         quantity: 1,
         price: 0,
         total: 0,
+        availableStock: 0,
       },
     ]);
 
     setLensSearches((previous) => [...previous, ""]);
-
     setLensResults((previous) => [...previous, []]);
-
     setLensSearching((previous) => [...previous, false]);
   };
-
-  // =========================================================
-  // REMOVE LENS
-  // =========================================================
 
   const removeLensItem = (index) => {
     if (lensItems.length === 1) {
@@ -618,6 +576,148 @@ function CreateReceipt() {
     setLensSearching((previous) =>
       previous.filter((_, itemIndex) => itemIndex !== index),
     );
+  };
+
+  const handleLensItemChange = (index, field, value) => {
+    if (field === "quantity") {
+      const quantity = Number(value);
+      const item = lensItems[index];
+
+      const selectedLens = lenses.find((lens) => lens.lensId === item?.lensId);
+
+      const availableStock = Number(
+        selectedLens?.stock ?? item?.availableStock ?? 0,
+      );
+
+      if (quantity < 1) {
+        return;
+      }
+
+      if (item?.lensId && quantity > availableStock) {
+        alert(
+          `Only ${availableStock} units available for ${
+            selectedLens?.brand || item.lens || "this lens"
+          }.`,
+        );
+        return;
+      }
+
+      setLensItems((previous) => {
+        const updated = [...previous];
+
+        updated[index] = {
+          ...updated[index],
+          quantity,
+          availableStock,
+          total: quantity * Number(updated[index].price || 0),
+        };
+
+        return updated;
+      });
+
+      return;
+    }
+
+    setLensItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // LENS SEARCH CHANGE
+  // =========================================================
+
+  const handleLensSearchChange = (index, value) => {
+    // Remove previously selected lens
+    setLensItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        lensId: null,
+        lens: value,
+        availableStock: 0,
+      };
+
+      updated[index].total =
+        Number(updated[index].quantity || 0) *
+        Number(updated[index].price || 0);
+
+      return updated;
+    });
+
+    setLensSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  // =========================================================
+  // SELECT LENS
+  // =========================================================
+
+  const handleLensSelect = (index, lens) => {
+    const availableStock = Number(lens.stock) || 0;
+    const isActive = lens.status === true;
+
+    if (!isActive) {
+      alert(
+        `Lens "${lens.brand} - ${lens.lensType || "Lens"}" is inactive and cannot be added to the receipt.`,
+      );
+      return;
+    }
+
+    if (availableStock <= 0) {
+      alert(
+        `Lens "${lens.brand} - ${lens.lensType || "Lens"}" is out of stock.`,
+      );
+      return;
+    }
+
+    const price = Number(lens.price) || 0;
+
+    const lensName = `${lens.brand} - ${lens.lensType || "Lens"}`;
+
+    setLensItems((previous) => {
+      const updated = [...previous];
+
+      updated[index] = {
+        ...updated[index],
+        lensId: lens.lensId,
+        lens: lensName,
+        quantity: 1,
+        price,
+        total: price,
+        availableStock,
+      };
+
+      return updated;
+    });
+
+    // Exactly like AddPrescription
+    setLensSearches((previous) => {
+      const updated = [...previous];
+      updated[index] = "";
+      return updated;
+    });
+
+    setLensResults((previous) => {
+      const updated = [...previous];
+      updated[index] = [];
+      return updated;
+    });
   };
 
   // =========================================================
@@ -655,45 +755,94 @@ function CreateReceipt() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // =======================================================
+    // -------------------------------------------------------
     // CUSTOMER VALIDATION
-    // =======================================================
+    // -------------------------------------------------------
 
     if (!selectedCustomer) {
       alert("Please select a customer.");
       return;
     }
 
-    // =======================================================
-    // GET ONLY SELECTED FRAME ITEMS
-    // Empty frame rows are ignored
-    // =======================================================
+    // -------------------------------------------------------
+    // ITEM VALIDATION
+    // Empty placeholder rows are allowed.
+    // Only rows where a product/lens is actually selected are validated.
+    // -------------------------------------------------------
 
     const selectedProductItems = productItems.filter((item) => item.productId);
 
-    // =======================================================
-    // VALIDATE SELECTED FRAME ITEMS
-    // =======================================================
+    const selectedLensItems = lensItems.filter((item) => item.lensId);
+
+    // At least one product or lens must be selected.
+    if (selectedProductItems.length === 0 && selectedLensItems.length === 0) {
+      alert("Please add at least one product or lens.");
+      return;
+    }
+
+    // -------------------------------------------------------
+    // PRODUCT VALIDATION
+    // Only selected product rows are validated.
+    // Empty product rows are ignored.
+    // -------------------------------------------------------
 
     const invalidProduct = selectedProductItems.some(
       (item) => Number(item.quantity) < 1 || Number(item.price) < 0,
     );
 
     if (invalidProduct) {
-      alert("Please enter valid quantity and price for the selected frame.");
+      alert("Please enter valid quantity and price for the selected product.");
       return;
     }
 
-    // =======================================================
-    // GET ONLY SELECTED LENS ITEMS
-    // Empty lens rows are ignored
-    // =======================================================
+    // Validate product status and stock again immediately before
+    // generating the receipt. The backend performs the final check too.
+    for (const item of selectedProductItems) {
+      const selectedProduct = products.find(
+        (product) => product.productId === item.productId,
+      );
 
-    const selectedLensItems = lensItems.filter((item) => item.lensId);
+      if (!selectedProduct) {
+        alert("Selected product could not be found. Please select it again.");
+        return;
+      }
 
-    // =======================================================
-    // VALIDATE SELECTED LENS ITEMS
-    // =======================================================
+      if (selectedProduct.status?.toLowerCase() !== "active") {
+        alert(
+          `${selectedProduct.productName} is inactive and cannot be added to receipt.`,
+        );
+        return;
+      }
+
+      const availableStock = Number(selectedProduct.stockQuantity) || 0;
+
+      const requestedQuantity = Number(item.quantity);
+
+      if (availableStock <= 0) {
+        alert(`${selectedProduct.productName} is out of stock.`);
+        return;
+      }
+
+      if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1) {
+        alert(
+          `Quantity for ${selectedProduct.productName} must be at least 1.`,
+        );
+        return;
+      }
+
+      if (requestedQuantity > availableStock) {
+        alert(
+          `Only ${availableStock} units of ${selectedProduct.productName} are available.`,
+        );
+        return;
+      }
+    }
+
+    // -------------------------------------------------------
+    // LENS VALIDATION
+    // Only selected lens rows are validated.
+    // Empty lens rows are ignored.
+    // -------------------------------------------------------
 
     const invalidLens = selectedLensItems.some(
       (item) => Number(item.quantity) < 1 || Number(item.price) < 0,
@@ -704,37 +853,58 @@ function CreateReceipt() {
       return;
     }
 
-    // =======================================================
-    // AT LEAST ONE ITEM
-    // =======================================================
+    // Validate lens status and stock again immediately before
+    // generating the receipt. The backend performs the final check too.
+    for (const item of selectedLensItems) {
+      const selectedLens = lenses.find((lens) => lens.lensId === item.lensId);
 
-    if (selectedProductItems.length === 0 && selectedLensItems.length === 0) {
-      alert("Please add at least one frame or lens.");
-      return;
+      if (!selectedLens) {
+        alert("Selected lens could not be found. Please select it again.");
+        return;
+      }
+
+      if (selectedLens.status !== true) {
+        alert(
+          `${selectedLens.brand} - ${
+            selectedLens.lensType || "Lens"
+          } is inactive and cannot be added to receipt.`,
+        );
+        return;
+      }
+
+      const availableStock = Number(selectedLens.stock) || 0;
+      const requestedQuantity = Number(item.quantity);
+
+      if (availableStock <= 0) {
+        alert(
+          `${selectedLens.brand} - ${
+            selectedLens.lensType || "Lens"
+          } is out of stock.`,
+        );
+        return;
+      }
+
+      if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1) {
+        alert(`Quantity for ${selectedLens.brand} must be at least 1.`);
+        return;
+      }
+
+      if (requestedQuantity > availableStock) {
+        alert(
+          `Only ${availableStock} units of ${
+            selectedLens.brand
+          } - ${selectedLens.lensType || "Lens"} are available.`,
+        );
+        return;
+      }
     }
 
-    // =======================================================
+    // -------------------------------------------------------
     // DISCOUNT VALIDATION
-    // =======================================================
+    // -------------------------------------------------------
 
-    if (Number(discount) < 0 || Number(discount) > subtotal) {
+    if (Number(discount) > subtotal) {
       alert("Discount cannot be greater than subtotal.");
-      return;
-    }
-
-    // =======================================================
-    // PAID AMOUNT VALIDATION
-    // =======================================================
-
-    const enteredPaidAmount = Number(paidAmount) || 0;
-
-    if (enteredPaidAmount < 0) {
-      alert("Paid amount cannot be negative.");
-      return;
-    }
-
-    if (enteredPaidAmount > total) {
-      alert(`Paid amount cannot exceed total amount of ₹${total.toFixed(2)}.`);
       return;
     }
 
@@ -759,17 +929,13 @@ function CreateReceipt() {
         })),
       ];
 
-      console.log("Order Items:", orderItems);
-
       // =====================================================
       // CREATE ORDER
       // =====================================================
 
       const orderRequest = {
-        customerId: Number(selectedCustomer.customerId),
-
+        customerId: selectedCustomer.customerId,
         status: "PENDING",
-
         items: orderItems,
       };
 
@@ -790,14 +956,10 @@ function CreateReceipt() {
       // =====================================================
 
       const billRequest = {
-        customerId: Number(selectedCustomer.customerId),
-
+        customerId: selectedCustomer.customerId,
         orderId: createdOrder.orderId,
-
         subtotal: Number(subtotal.toFixed(2)),
-
         discount: Number(safeDiscount.toFixed(2)),
-
         gst: Number(taxAmount.toFixed(2)),
       };
 
@@ -814,25 +976,16 @@ function CreateReceipt() {
       }
 
       // =====================================================
-      // CREATE PAYMENT
-      //
-      // Do NOT create a payment record for ₹0.
-      // A zero payment means no payment has been made.
+      // CREATE INITIAL PAYMENT
+      // Payment is created only when the customer has paid > 0.
+      // The backend remains responsible for final due/overpayment validation.
       // =====================================================
 
-      let createdPayment = null;
-
-      if (enteredPaidAmount > 0) {
-        const paymentStatus = enteredPaidAmount >= total ? "PAID" : "PARTIAL";
-
+      if (safePaidAmount > 0) {
         const paymentRequest = {
           billId: createdBill.billId,
-
-          paymentType: paymentMethod,
-
-          amount: Number(enteredPaidAmount.toFixed(2)),
-
-          status: paymentStatus,
+          amount: Number(safePaidAmount.toFixed(2)),
+          paymentMethod,
         };
 
         console.log("Creating Payment:", paymentRequest);
@@ -841,51 +994,28 @@ function CreateReceipt() {
 
         console.log("Payment Response:", paymentResponse.data);
 
-        if (!paymentResponse.data?.success) {
+        if (paymentResponse.data?.success === false) {
           throw new Error(
-            paymentResponse.data?.message || "Payment could not be created.",
+            paymentResponse.data?.message || "Unable to create payment.",
           );
         }
-
-        createdPayment = paymentResponse.data?.data;
       }
 
       // =====================================================
-      // SUCCESS ALERT
+      // SUCCESS MESSAGE
       // =====================================================
 
       window.alert(
         `Receipt Generated Successfully!\n\n` +
-          `Bill No: BILL${String(createdBill.billId).padStart(3, "0")}\n` +
           `Customer: ${selectedCustomer.customerName}\n` +
           `Order ID: ${createdOrder.orderId}\n` +
-          `Total: ₹${total.toFixed(2)}\n` +
-          `Paid: ₹${enteredPaidAmount.toFixed(2)}\n` +
-          `Due: ₹${dueAmount.toFixed(2)}\n` +
-          `Status: ${
-            enteredPaidAmount >= total
-              ? "PAID"
-              : enteredPaidAmount > 0
-                ? "PARTIAL"
-                : "PENDING"
-          }`,
+          `Bill ID: ${createdBill.billId}\n`,
       );
 
-      console.log("Receipt Created Successfully:", {
-        customer: selectedCustomer,
-        order: createdOrder,
-        bill: createdBill,
-        payment: createdPayment,
-      });
-
-      // =====================================================
-      // REDIRECT TO RECEIPT LIST
-      // =====================================================
-
+      // Redirect after user clicks OK
       navigate("/receipts");
     } catch (error) {
       console.error("Generate receipt error:", error);
-
       console.error("Backend error:", error.response?.data);
 
       alert(
@@ -911,7 +1041,6 @@ function CreateReceipt() {
       <div className="receipt-header">
         <div>
           <h2>Create Receipt</h2>
-
           <p>Generate customer invoice</p>
         </div>
 
@@ -982,7 +1111,6 @@ function CreateReceipt() {
                                 {customer.city && (
                                   <>
                                     <span>•</span>
-
                                     <span>{customer.city}</span>
                                   </>
                                 )}
@@ -1054,13 +1182,9 @@ function CreateReceipt() {
           <thead>
             <tr>
               <th>Frame / Product</th>
-
               <th>Qty</th>
-
               <th>Price</th>
-
               <th>Total</th>
-
               <th>Action</th>
             </tr>
           </thead>
@@ -1099,7 +1223,12 @@ function CreateReceipt() {
                             <button
                               type="button"
                               key={product.productId}
-                              className="customer-result"
+                              className={`customer-result ${
+                                product.status?.toLowerCase() !== "active" ||
+                                Number(product.stockQuantity) <= 0
+                                  ? "product-unavailable"
+                                  : ""
+                              }`}
                               onClick={() =>
                                 handleProductSelect(index, product)
                               }
@@ -1133,6 +1262,16 @@ function CreateReceipt() {
                                       <span>₹{product.sellingPrice}</span>
                                     </>
                                   )}
+
+                                  <span>•</span>
+
+                                  <span>{product.status || "Unknown"}</span>
+
+                                  <span>•</span>
+
+                                  <span>
+                                    Stock: {Number(product.stockQuantity) || 0}
+                                  </span>
                                 </div>
                               </div>
                             </button>
@@ -1150,15 +1289,37 @@ function CreateReceipt() {
                     <input
                       type="number"
                       min="1"
+                      max={
+                        Number(
+                          products.find(
+                            (product) => product.productId === item.productId,
+                          )?.stockQuantity ??
+                            item.availableStock ??
+                            1,
+                        ) || 1
+                      }
                       value={item.quantity}
                       onChange={(e) =>
                         handleProductItemChange(
                           index,
                           "quantity",
-                          Number(e.target.value),
+                          e.target.value,
                         )
                       }
                     />
+
+                    {item.productId && (
+                      <small className="stock-hint">
+                        Available:{" "}
+                        {Number(
+                          products.find(
+                            (product) => product.productId === item.productId,
+                          )?.stockQuantity ??
+                            item.availableStock ??
+                            0,
+                        )}
+                      </small>
+                    )}
                   </td>
 
                   <td>
@@ -1177,7 +1338,7 @@ function CreateReceipt() {
                     />
                   </td>
 
-                  <td>₹{Number(item.total || 0).toFixed(2)}</td>
+                  <td>₹{Number(item.total).toFixed(2)}</td>
 
                   <td>
                     <button
@@ -1221,15 +1382,10 @@ function CreateReceipt() {
           <thead>
             <tr>
               <th>Lens</th>
-
               <th>Power</th>
-
               <th>Qty</th>
-
               <th>Price</th>
-
               <th>Total</th>
-
               <th>Action</th>
             </tr>
           </thead>
@@ -1272,7 +1428,11 @@ function CreateReceipt() {
                             <button
                               type="button"
                               key={lens.lensId}
-                              className="customer-result"
+                              className={`customer-result ${
+                                lens.status !== true || Number(lens.stock) <= 0
+                                  ? "product-unavailable"
+                                  : ""
+                              }`}
                               onClick={() => handleLensSelect(index, lens)}
                             >
                               <div className="customer-result-avatar">
@@ -1296,6 +1456,18 @@ function CreateReceipt() {
                                   <span>•</span>
 
                                   <span>₹{lens.price}</span>
+
+                                  <span>•</span>
+
+                                  <span>
+                                    {lens.status === true
+                                      ? "Active"
+                                      : "Inactive"}
+                                  </span>
+
+                                  <span>•</span>
+
+                                  <span>Stock: {Number(lens.stock) || 0}</span>
                                 </div>
                               </div>
                             </button>
@@ -1315,6 +1487,11 @@ function CreateReceipt() {
                     <input
                       type="number"
                       min="1"
+                      max={
+                        Number(
+                          selectedLens?.stock ?? item.availableStock ?? 1,
+                        ) || 1
+                      }
                       value={item.quantity}
                       onChange={(e) =>
                         handleLensItemChange(
@@ -1324,6 +1501,15 @@ function CreateReceipt() {
                         )
                       }
                     />
+
+                    {item.lensId && (
+                      <small className="stock-hint">
+                        Available:{" "}
+                        {Number(
+                          selectedLens?.stock ?? item.availableStock ?? 0,
+                        )}
+                      </small>
+                    )}
                   </td>
 
                   <td>
@@ -1342,7 +1528,7 @@ function CreateReceipt() {
                     />
                   </td>
 
-                  <td>₹{Number(item.total || 0).toFixed(2)}</td>
+                  <td>₹{Number(item.total).toFixed(2)}</td>
 
                   <td>
                     <button
@@ -1386,7 +1572,9 @@ function CreateReceipt() {
               onChange={(e) => {
                 const value = Number(e.target.value);
 
-                setDiscount(Math.min(Math.max(value || 0, 0), subtotal));
+                if (value >= 0 && value <= subtotal) {
+                  setDiscount(value);
+                }
               }}
             />
           </div>
@@ -1403,7 +1591,9 @@ function CreateReceipt() {
               onChange={(e) => {
                 const value = Number(e.target.value);
 
-                setTax(Math.min(Math.max(value || 0, 0), 100));
+                if (value >= 0 && value <= 100) {
+                  setTax(value);
+                }
               }}
             />
           </div>
@@ -1437,9 +1627,9 @@ function CreateReceipt() {
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
             >
-              <option value="CASH">Cash</option>
+              <option value="Cash">Cash</option>
 
-              <option value="CARD">Card</option>
+              <option value="Card">Card</option>
 
               <option value="UPI">UPI</option>
             </select>
@@ -1457,7 +1647,9 @@ function CreateReceipt() {
               onChange={(e) => {
                 const value = Number(e.target.value);
 
-                setPaidAmount(Math.min(Math.max(value || 0, 0), total));
+                if (value >= 0 && value <= total) {
+                  setPaidAmount(value);
+                }
               }}
             />
           </div>

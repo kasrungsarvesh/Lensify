@@ -556,19 +556,88 @@ textarea:focus {
 
   overflow-x: auto;
 }
+/* =========================================================
+   EYE POWER TABLE
+   ========================================================= */
+
+.power-table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: visible !important;
+}
+
+.table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: visible !important;
+}
 
 .power-table {
   width: 100%;
 
   border-collapse: separate;
-
   border-spacing: 0;
 
   border: 1px solid #dbe4ef;
-
   border-radius: 10px;
 
-  overflow: hidden;
+  /* VERY IMPORTANT */
+  overflow: visible !important;
+
+  background: #ffffff;
+}
+
+.power-table th,
+.power-table td {
+  position: relative;
+}
+
+.power-table th {
+  padding: 13px 12px;
+
+  background: #f8fafc;
+
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-align: center;
+
+  border-bottom: 1px solid #dbe4ef;
+
+  white-space: nowrap;
+}
+
+.power-table td {
+  padding: 12px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+
+  vertical-align: top;
+}
+
+.power-table tr:last-child td {
+  border-bottom: none;
+}
+
+.power-table td:last-child,
+.power-table th:last-child {
+  border-right: none;
+}
+
+.power-table td:first-child,
+.power-table th:first-child {
+  text-align: left;
+}
+
+.power-table td input {
+  width: 100%;
+  min-width: 90px;
+  box-sizing: border-box;
 }
 
 .power-table th {
@@ -818,4 +887,899 @@ textarea {
   overflow-y: auto;
 
   background: #fff;
+}
+/* =========================================================
+   FORM GROUP
+========================================================= */
+
+.form-group {
+  position: relative;
+}
+
+/* =========================================================
+   REQUIRED STAR
+========================================================= */
+
+.form-group label span,
+label span {
+  color: #e53935;
+  font-weight: 700;
+}
+
+/* =========================================================
+   INPUT ERROR
+========================================================= */
+
+.input-error {
+  border: 1px solid #e53935 !important;
+  box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.08);
+}
+
+/* =========================================================
+   VALIDATION ERROR
+========================================================= */
+
+.field-error {
+  display: block;
+  margin-top: 5px;
+
+  color: #e53935;
+
+  font-size: 12px;
+  line-height: 1.4;
+
+  font-weight: 500;
+}
+/* =========================================================
+   INFO TOOLTIP - IMPROVED
+   ========================================================= */
+
+.info-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 6px;
+
+  vertical-align: middle;
+  cursor: help;
+
+  /* Important */
+  z-index: 1000;
+}
+
+/* INFO ICON */
+
+.info-icon {
+  font-size: 13px;
+  color: #2563eb;
+
+  cursor: help;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.info-tooltip-wrapper:hover .info-icon {
+  transform: scale(1.15);
+  color: #1d4ed8;
+}
+
+/* =========================================================
+   TOOLTIP BOX
+   ========================================================= */
+
+.info-tooltip {
+  position: absolute;
+
+  /* Open to the RIGHT of the icon */
+  left: calc(100% + 12px);
+  top: 50%;
+
+  width: 280px;
+
+  padding: 13px 15px;
+
+  box-sizing: border-box;
+
+  border-radius: 10px;
+
+  background: #1e293b;
+  color: #ffffff;
+
+  font-size: 12px;
+  line-height: 1.55;
+
+  text-align: left;
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.25),
+    0 3px 8px rgba(15, 23, 42, 0.12);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  /* Hidden initially */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform: translateY(-50%) translateX(-5px);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s ease;
+
+  z-index: 999999;
+}
+
+/* =========================================================
+   SHOW TOOLTIP
+   ========================================================= */
+
+.info-tooltip-wrapper:hover .info-tooltip {
+  opacity: 1;
+  visibility: visible;
+
+  transform: translateY(-50%) translateX(0);
+}
+
+/* =========================================================
+   TOOLTIP TITLE
+   ========================================================= */
+
+.info-tooltip strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   TOOLTIP DESCRIPTION
+   ========================================================= */
+
+.info-tooltip span {
+  display: block;
+
+  color: #cbd5e1;
+
+  font-size: 12px;
+
+  line-height: 1.55;
+}
+
+/* =========================================================
+   TOOLTIP ARROW
+   ========================================================= */
+
+.info-tooltip::before {
+  content: "";
+
+  position: absolute;
+
+  left: -7px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 0;
+  height: 0;
+
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid #1e293b;
+}
+
+/* =========================================================
+   EYE POWER TABLE - INFO TOOLTIPS
+   ========================================================= */
+
+/* Keep tooltip wrapper above table content */
+.power-table th .info-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  z-index: 100;
+}
+
+/* Make table header icons easy to hover */
+.power-table th .info-icon {
+  font-size: 13px;
+  color: #2563eb;
+  cursor: help;
+  transition: transform 0.2s ease;
+}
+
+.power-table th .info-tooltip-wrapper:hover .info-icon {
+  transform: scale(1.15);
+}
+
+/* =========================================================
+   DEFAULT TABLE TOOLTIP
+   Opens to the RIGHT
+   ========================================================= */
+
+.power-table th .info-tooltip {
+  position: absolute;
+
+  left: calc(100% + 10px);
+  top: 50%;
+
+  width: 245px;
+  max-width: 245px;
+
+  padding: 12px 14px;
+
+  box-sizing: border-box;
+
+  background: #1e293b;
+  color: #ffffff;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+
+  text-align: left;
+
+  white-space: normal;
+
+  box-shadow:
+    0 10px 25px rgba(15, 23, 42, 0.22),
+    0 3px 8px rgba(15, 23, 42, 0.12);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform: translateY(-50%) translateX(-6px);
+
+  transition:
+    opacity 0.18s ease,
+    visibility 0.18s ease,
+    transform 0.18s ease;
+
+  z-index: 999999;
+}
+
+/* Show */
+.power-table th .info-tooltip-wrapper:hover .info-tooltip {
+  opacity: 1;
+  visibility: visible;
+
+  transform: translateY(-50%) translateX(0);
+}
+
+/* =========================================================
+   TOOLTIP TITLE
+   ========================================================= */
+
+.power-table th .info-tooltip strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  line-height: 1.4;
+
+  text-transform: none;
+}
+
+/* =========================================================
+   TOOLTIP DESCRIPTION
+   ========================================================= */
+
+.power-table th .info-tooltip span {
+  display: block;
+
+  margin: 0;
+
+  color: #dbeafe;
+
+  font-size: 11.5px;
+  font-weight: 400;
+
+  line-height: 1.55;
+
+  text-transform: none;
+}
+
+/* =========================================================
+   RIGHT-SIDE ARROW
+   ========================================================= */
+
+.power-table th .info-tooltip::before {
+  content: "";
+
+  position: absolute;
+
+  left: -7px;
+  top: 50%;
+
+  width: 0;
+  height: 0;
+
+  transform: translateY(-50%);
+
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid #1e293b;
+}
+
+/* =========================================================
+   VA TOOLTIP
+   Open toward LEFT because VA is near the right edge
+   ========================================================= */
+
+.power-table th:last-child .info-tooltip {
+  left: auto;
+  right: calc(100% + 10px);
+
+  transform: translateY(-50%) translateX(6px);
+}
+
+.power-table th:last-child .info-tooltip-wrapper:hover .info-tooltip {
+  transform: translateY(-50%) translateX(0);
+}
+
+/* =========================================================
+   LEFT-SIDE ARROW FOR VA
+   ========================================================= */
+
+.power-table th:last-child .info-tooltip::before {
+  left: auto;
+  right: -7px;
+
+  border-right: none;
+
+  border-left: 7px solid #1e293b;
+}
+
+/* =========================================================
+   EYE POWER HEADER
+   ========================================================= */
+
+.power-table th {
+  position: relative;
+  overflow: visible;
+}
+
+/* =========================================================
+   IMPORTANT - DON'T CLIP TOOLTIP
+   ========================================================= */
+
+.power-table,
+.power-table-wrapper,
+.table-wrapper {
+  overflow: visible;
+}
+
+.power-table-wrapper,
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+/* =========================================================
+   IMPORTANT
+   Allow dropdowns and tooltips to extend outside cards
+========================================================= */
+
+.add-prescription-page,
+.add-prescription-page form,
+.add-prescription-page .card {
+  overflow: visible !important;
+}
+
+/* =========================================================
+   CUSTOMER SEARCH
+========================================================= */
+
+.customer-search-group {
+  position: relative;
+  z-index: 100;
+}
+
+.customer-search-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Search input */
+
+.customer-search-container > input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+
+  border: 1px solid #d5ddeb;
+  border-radius: 12px;
+
+  background: #ffffff;
+  color: #172033;
+
+  font-size: 16px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.customer-search-container > input:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* =========================================================
+   CUSTOMER SEARCH RESULTS
+========================================================= */
+
+.customer-results {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+
+  width: 100%;
+
+  max-height: 280px;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border: 1px solid #dce3ef;
+  border-radius: 12px;
+
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+
+  z-index: 9999;
+
+  padding: 6px;
+
+  animation: customerDropdownIn 0.15s ease-out;
+}
+
+@keyframes customerDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   CUSTOMER RESULT
+========================================================= */
+
+.customer-result {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.customer-result:hover {
+  background: #f1f5ff;
+}
+
+.customer-result:active {
+  transform: scale(0.99);
+}
+
+/* Avatar */
+
+.customer-result-avatar {
+  width: 40px;
+  height: 40px;
+
+  min-width: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #e8f0ff;
+
+  color: #2563eb;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Customer information */
+
+.customer-result-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+.customer-result-name {
+  display: block;
+
+  color: #172033;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   NO RESULTS
+========================================================= */
+
+.customer-no-results {
+  padding: 18px;
+
+  text-align: center;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+/* =========================================================
+   SELECTED CUSTOMER
+========================================================= */
+
+.selected-customer {
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 7px 10px;
+
+  background: #ffffff;
+
+  border: 1px solid #2563eb;
+  border-radius: 12px;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.selected-customer-main {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.selected-customer-avatar {
+  width: 36px;
+  height: 36px;
+
+  min-width: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #e8f0ff;
+
+  color: #2563eb;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.selected-customer-info {
+  min-width: 0;
+}
+
+.selected-customer-info strong {
+  display: block;
+
+  color: #172033;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Change customer button */
+
+.remove-customer {
+  width: 30px;
+  height: 30px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f1f5f9;
+
+  color: #64748b;
+
+  font-size: 20px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.remove-customer:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* =========================================================
+   INFO ICON
+========================================================= */
+
+.info-tooltip-wrapper {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 5px;
+
+  vertical-align: middle;
+
+  cursor: help;
+
+  z-index: 200;
+}
+
+.info-icon {
+  width: 15px;
+  height: 15px;
+
+  color: #2563eb;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.info-tooltip-wrapper:hover .info-icon {
+  color: #1d4ed8;
+
+  transform: scale(1.08);
+}
+
+/* =========================================================
+   TOOLTIP
+========================================================= */
+
+.info-tooltip {
+  position: absolute;
+
+  /*
+    IMPORTANT:
+    Open BELOW the icon.
+    This prevents the PD tooltip from being clipped
+    at the top of the section.
+  */
+
+  top: calc(100% + 10px);
+  left: 50%;
+
+  transform: translateX(-50%) translateY(-4px);
+
+  width: 300px;
+
+  padding: 14px 16px;
+
+  background: #172235;
+
+  color: #ffffff;
+
+  border-radius: 10px;
+
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.28);
+
+  font-size: 13px;
+
+  line-height: 1.55;
+
+  text-align: left;
+
+  opacity: 0;
+  visibility: hidden;
+
+  pointer-events: none;
+
+  z-index: 10000;
+
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s ease;
+}
+
+/* Small arrow */
+
+.info-tooltip::before {
+  content: "";
+
+  position: absolute;
+
+  top: -6px;
+  left: 50%;
+
+  width: 12px;
+  height: 12px;
+
+  background: #172235;
+
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Tooltip title */
+
+.info-tooltip-title {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Tooltip body */
+
+.info-tooltip-content {
+  display: block;
+
+  color: #e2e8f0;
+
+  font-size: 13px;
+
+  font-weight: 400;
+}
+
+/* Show */
+
+.info-tooltip-wrapper:hover .info-tooltip {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   TOOLTIP POSITIONING
+   For icons near the left side
+========================================================= */
+
+.info-tooltip-wrapper:first-child .info-tooltip {
+  left: 0;
+
+  transform: translateX(0) translateY(-4px);
+}
+
+.info-tooltip-wrapper:first-child .info-tooltip::before {
+  left: 12px;
+}
+
+.info-tooltip-wrapper:first-child:hover .info-tooltip {
+  transform: translateX(0) translateY(0);
+}
+
+/* =========================================================
+   TABLE TOOLTIP
+========================================================= */
+
+.power-table th {
+  position: relative;
+}
+
+.power-table th .info-tooltip {
+  width: 280px;
+
+  top: calc(100% + 10px);
+}
+
+/* =========================================================
+   PD SECTION
+========================================================= */
+
+.grid-2 .form-group {
+  position: relative;
+}
+
+/*
+  Keep PD tooltip safely below the label.
+*/
+
+.grid-2 .info-tooltip-wrapper {
+  position: relative;
+  z-index: 500;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .info-tooltip {
+    width: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .info-tooltip {
+    width: 230px;
+
+    font-size: 12px;
+  }
+
+  .info-tooltip-title {
+    font-size: 13px;
+  }
+
+  .info-tooltip-content {
+    font-size: 12px;
+  }
 }
