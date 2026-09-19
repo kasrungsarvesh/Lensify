@@ -229,11 +229,11 @@ function ViewPrescription() {
             )}
           </div>
 
-          <div className="detail-item">
+          {/* <div className="detail-item">
             <label>Doctor Name</label>
 
             <p>{prescription.doctorName || "—"}</p>
-          </div>
+          </div> */}
 
           <div className="detail-item">
             <label>Prescription Date</label>

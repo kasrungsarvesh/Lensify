@@ -8,6 +8,8 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
+import { createOrder } from "../../api/orderApi";
+import { createPayment } from "../../api/paymentApi";
 import "./CreateReceipt.css";
 
 function CreateReceipt() {
@@ -941,11 +943,11 @@ function CreateReceipt() {
 
       console.log("Creating Order:", orderRequest);
 
-      const orderResponse = await api.post("/orders", orderRequest);
+      const orderResponse = await createOrder(orderRequest);
 
       console.log("Order Response:", orderResponse.data);
 
-      const createdOrder = orderResponse.data?.data;
+      const createdOrder = orderResponse?.data;
 
       if (!createdOrder?.orderId) {
         throw new Error("Order was created but orderId was not returned.");
@@ -985,16 +987,16 @@ function CreateReceipt() {
         const paymentRequest = {
           billId: createdBill.billId,
           amount: Number(safePaidAmount.toFixed(2)),
-          paymentMethod,
+          paymentType: paymentMethod,
         };
 
         console.log("Creating Payment:", paymentRequest);
 
-        const paymentResponse = await api.post("/payments", paymentRequest);
+        const paymentResponse = await createPayment(paymentRequest);
 
         console.log("Payment Response:", paymentResponse.data);
 
-        if (paymentResponse.data?.success === false) {
+        if (paymentResponse?.success === false) {
           throw new Error(
             paymentResponse.data?.message || "Unable to create payment.",
           );

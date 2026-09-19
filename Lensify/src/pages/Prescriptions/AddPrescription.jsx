@@ -512,7 +512,7 @@ function AddPrescription() {
                 DOCTOR
             ============================================= */}
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <label>Doctor Name</label>
 
               <input
@@ -522,7 +522,7 @@ function AddPrescription() {
               />
 
               <FieldError name="doctorName" />
-            </div>
+            </div> */}
 
             {/* =============================================
                 PRESCRIPTION DATE

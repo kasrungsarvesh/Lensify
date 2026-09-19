@@ -77,8 +77,6 @@ function Register() {
       return "Phone number must be exactly 10 digits.";
     }
 
-    // IMPORTANT:
-    // Backend expects roleName, not roleId
     if (!formData.roleName) {
       return "Please select a role.";
     }
@@ -133,8 +131,7 @@ function Register() {
         email: formData.email.trim(),
         phoneNumber: formData.phoneNumber.trim(),
 
-        // IMPORTANT:
-        // Send roleName because UserDto expects roleName
+        // Send the exact database role name
         roleName: formData.roleName,
 
         password: formData.password,
@@ -357,7 +354,9 @@ function Register() {
                 />
               </div>
 
-              {/* ROLE */}
+              {/* =================================================
+                  ROLE
+              ================================================= */}
 
               <div className="input-group">
                 <label htmlFor="roleName">Role</label>
@@ -373,11 +372,19 @@ function Register() {
                 >
                   <option value="">Select Role</option>
 
-                  <option value="Manager">Manager</option>
+                  {/* IMPORTANT:
+                      value MUST match database role name
+                  */}
 
-                  <option value="Optometrist">Optometrist</option>
+                  <option value="ADMIN">ADMIN</option>
 
-                  <option value="Receptionist">Receptionist</option>
+                  <option value="MANAGER">MANAGER</option>
+
+                  <option value="EMPLOYEE">EMPLOYEE</option>
+
+                  <option value="RECEPTIONIST">RECEPTIONIST</option>
+
+                  <option value="OPTOMETRIST">OPTOMETRIST</option>
                 </select>
               </div>
 

@@ -207,13 +207,13 @@ function EditCustomer() {
 
             {/* Reference By */}
 
-            <div>
+            {/* <div>
               <label>Reference By</label>
 
               <input type="text" {...register("referenceBy")} />
 
               <small className="error">{errors.referenceBy?.message}</small>
-            </div>
+            </div> */}
           </div>
         </div>
 

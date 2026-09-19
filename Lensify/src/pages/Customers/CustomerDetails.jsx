@@ -19,6 +19,7 @@ import {
 } from "react-icons/fa";
 
 import { getCustomerById } from "../../api/customerApi";
+import api from "../../api/axios";
 
 import { errorToast } from "../../utils/toast";
 
@@ -30,6 +31,8 @@ function CustomerDetails() {
   const [customer, setCustomer] = useState(null);
   const [prescriptionCount, setPrescriptionCount] = useState(0);
   const [prescriptions, setPrescriptions] = useState([]);
+  const [bills, setBills] = useState([]);
+  const [billsLoading, setBillsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // =====================================================
@@ -65,6 +68,7 @@ function CustomerDetails() {
       fetchCustomer();
       fetchPrescriptionCount();
       fetchCustomerPrescriptions();
+      fetchCustomerBills();
     }
   }, [id]);
   const fetchCustomerPrescriptions = async () => {
@@ -90,6 +94,115 @@ function CustomerDetails() {
       setPrescriptionCount(0);
     }
   };
+
+  // =====================================================
+  // BILL HELPERS
+  // =====================================================
+
+  const extractBills = (responseData) => {
+    if (!responseData) return [];
+
+    if (Array.isArray(responseData?.data)) {
+      return responseData.data;
+    }
+
+    if (Array.isArray(responseData?.data?.content)) {
+      return responseData.data.content;
+    }
+
+    if (Array.isArray(responseData?.content)) {
+      return responseData.content;
+    }
+
+    if (Array.isArray(responseData)) {
+      return responseData;
+    }
+
+    return [];
+  };
+
+  const getBillCustomerId = (bill) => {
+    return (
+      bill?.customerId ??
+      bill?.customer?.customerId ??
+      bill?.customer?.id ??
+      bill?.customer?.customerID ??
+      null
+    );
+  };
+
+  const getBillId = (bill) => {
+    return bill?.billId ?? bill?.id ?? bill?.receiptId ?? null;
+  };
+
+  const getBillAmount = (bill) => {
+    const amount =
+      bill?.totalAmount ??
+      bill?.grandTotal ??
+      bill?.finalAmount ??
+      bill?.netAmount ??
+      bill?.total ??
+      bill?.amount ??
+      0;
+
+    const numericAmount = Number(amount);
+
+    return Number.isFinite(numericAmount) ? numericAmount : 0;
+  };
+
+  const getBillDate = (bill) => {
+    return (
+      bill?.billDate ??
+      bill?.billingDate ??
+      bill?.createdAt ??
+      bill?.createdDate ??
+      bill?.date ??
+      null
+    );
+  };
+
+  // =====================================================
+  // FETCH CUSTOMER BILLS
+  // =====================================================
+
+  const fetchCustomerBills = async () => {
+    try {
+      setBillsLoading(true);
+
+      const response = await api.get("/bills", {
+        params: {
+          page: 0,
+          size: 100,
+          sort: "billId,desc",
+        },
+      });
+
+      console.log("All Bills Response:", response.data);
+
+      const allBills = extractBills(response.data);
+
+      const customerBills = allBills.filter((bill) => {
+        const billCustomerId = getBillCustomerId(bill);
+
+        return billCustomerId !== null && Number(billCustomerId) === Number(id);
+      });
+
+      console.log(`Bills for customer ${id}:`, customerBills);
+
+      setBills(customerBills);
+    } catch (error) {
+      console.error("Failed to load customer bills:", error);
+      console.error("Bill API Error:", error.response?.data);
+      setBills([]);
+    } finally {
+      setBillsLoading(false);
+    }
+  };
+
+  const totalSpend = bills.reduce(
+    (total, bill) => total + getBillAmount(bill),
+    0,
+  );
 
   // =====================================================
   // LOADING
@@ -289,7 +402,7 @@ function CustomerDetails() {
           </div>
 
           <div>
-            <h3>0</h3>
+            <h3>{bills.length}</h3>
 
             <p>Total Bills</p>
           </div>
@@ -301,7 +414,13 @@ function CustomerDetails() {
           </div>
 
           <div>
-            <h3>₹0</h3>
+            <h3>
+              ₹
+              {totalSpend.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </h3>
 
             <p>Total Spend</p>
           </div>
@@ -382,11 +501,11 @@ function CustomerDetails() {
             <span>{customer.address || "-"}</span>
           </div>
 
-          <div className="info-item">
+          {/* <div className="info-item">
             <label>Reference By</label>
 
             <span>{customer.referenceBy || "-"}</span>
-          </div>
+          </div> */}
 
           <div className="info-item">
             <label>Status</label>
@@ -516,13 +635,92 @@ function CustomerDetails() {
           </Link>
         </div>
 
-        <div className="empty-section">
-          <FaFileInvoice />
+        {billsLoading ? (
+          <div className="empty-section">
+            <div className="loading-spinner"></div>
+            <p>Loading billing history...</p>
+          </div>
+        ) : bills.length === 0 ? (
+          <div className="empty-section">
+            <FaFileInvoice />
 
-          <h4>No bills available</h4>
+            <h4>No bills available</h4>
 
-          <p>Billing records for this customer will appear here.</p>
-        </div>
+            <p>Billing records for this customer will appear here.</p>
+          </div>
+        ) : (
+          <div className="recent-bills-list">
+            {bills.slice(0, 5).map((bill) => {
+              const billId = getBillId(bill);
+              const amount = getBillAmount(bill);
+              const billDate = getBillDate(bill);
+
+              const status =
+                bill?.status ||
+                bill?.paymentStatus ||
+                bill?.billStatus ||
+                "Pending";
+
+              return (
+                <div
+                  className="recent-bill-item"
+                  key={billId || `${getBillCustomerId(bill)}-${billDate}`}
+                >
+                  <div className="bill-icon">
+                    <FaFileInvoice />
+                  </div>
+
+                  <div className="bill-info">
+                    <strong>
+                      BILL
+                      {billId ? String(billId).padStart(4, "0") : "----"}
+                    </strong>
+
+                    <span>{formatDate(billDate)}</span>
+
+                    <small>
+                      {bill?.invoiceNumber ||
+                      bill?.receiptNumber ||
+                      bill?.orderNumber
+                        ? `Invoice: ${
+                            bill.invoiceNumber ||
+                            bill.receiptNumber ||
+                            bill.orderNumber
+                          }`
+                        : "Billing record"}
+                    </small>
+                  </div>
+
+                  <div className="bill-amount">
+                    <strong>
+                      ₹
+                      {amount.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </strong>
+
+                    <span
+                      className={`bill-status ${String(status)
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {status}
+                    </span>
+                  </div>
+
+                  {billId ? (
+                    <Link to={`/receipts/${billId}`} className="bill-view-btn">
+                      View
+                    </Link>
+                  ) : (
+                    <span className="bill-view-btn disabled">View</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

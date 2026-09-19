@@ -325,7 +325,7 @@ function EditPrescription() {
 
             {/* Doctor */}
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="doctorName">Doctor Name</label>
 
               <input
@@ -336,7 +336,7 @@ function EditPrescription() {
                 value={formData.doctorName}
                 onChange={handleChange}
               />
-            </div>
+            </div> */}
 
             {/* Date */}
 

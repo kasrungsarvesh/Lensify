@@ -168,3 +168,32 @@ tbody tr:hover {
   background: #fee2e2;
   color: #dc2626;
 }
+.status-active {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 12px;
+  border-radius: 20px;
+
+  background: #dcfce7;
+  color: #15803d;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-inactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 12px;
+  border-radius: 20px;
+
+  background: #fee2e2;
+  color: #dc2626;
+
+  font-size: 12px;
+  font-weight: 600;
+}

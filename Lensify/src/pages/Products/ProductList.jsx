@@ -193,8 +193,9 @@ function ProductList() {
               <th>Selling Price</th>
 
               <th>Stock</th>
+              <th>Product Status</th>
 
-              <th>Status</th>
+              <th>Stock Status</th>
 
               <th>Actions</th>
             </tr>
@@ -223,32 +224,37 @@ function ProductList() {
                 return (
                   <tr key={product.productId}>
                     {/* ID */}
-
                     <td>{product.productId}</td>
 
                     {/* PRODUCT */}
-
                     <td>{product.productName}</td>
 
                     {/* CATEGORY */}
-
                     <td>{product.categoryName || "-"}</td>
 
                     {/* BRAND */}
-
                     <td>{product.brand || "-"}</td>
 
                     {/* SELLING PRICE */}
-
                     <td>₹{product.sellingPrice}</td>
 
                     {/* STOCK */}
-
                     <td>{stock}</td>
-                    
 
-                    {/* STATUS */}
+                    {/* PRODUCT STATUS */}
+                    <td>
+                      <span
+                        className={`status ${
+                          product.status?.toLowerCase() === "active"
+                            ? "status-active"
+                            : "status-inactive"
+                        }`}
+                      >
+                        {product.status || "Inactive"}
+                      </span>
+                    </td>
 
+                    {/* STOCK STATUS */}
                     <td>
                       <span className={`status ${stockClass}`}>
                         {stockText}
@@ -256,7 +262,6 @@ function ProductList() {
                     </td>
 
                     {/* ACTIONS */}
-
                     <td className="action-buttons">
                       <Link
                         to={`/products/edit/${product.productId}`}
