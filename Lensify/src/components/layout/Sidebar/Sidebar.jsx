@@ -107,13 +107,13 @@ function Sidebar() {
       section: "Administration",
     },
 
-    {
-      title: "Settings",
-      path: "/settings",
-      icon: <FaCog />,
-      permission: "settings",
-      section: "Administration",
-    },
+    // {
+    //   title: "Settings",
+    //   path: "/settings",
+    //   icon: <FaCog />,
+    //   permission: "settings",
+    //   section: "Administration",
+    // },
   ];
 
   // ============================================================

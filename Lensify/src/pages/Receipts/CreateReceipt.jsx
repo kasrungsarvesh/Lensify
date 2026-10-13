@@ -106,7 +106,13 @@ function CreateReceipt() {
 
       console.log("Product Response:", response.data);
 
-      setProducts(response.data?.data || []);
+      const products = response.data?.data || [];
+
+      const activeProducts = products.filter(
+        (product) => product.status === "ACTIVE",
+      );
+
+      setProducts(activeProducts);
     } catch (error) {
       console.error("Fetch products error:", error);
       console.error("Backend error:", error.response?.data);
@@ -125,7 +131,11 @@ function CreateReceipt() {
 
       console.log("Lens Response:", response.data);
 
-      setLenses(response.data?.data || []);
+      const activeLenses = (response.data?.data || []).filter(
+        (lens) => lens.status === true,
+      );
+
+      setLenses(activeLenses);
     } catch (error) {
       console.error("Fetch lenses error:", error);
       console.error("Backend error:", error.response?.data);

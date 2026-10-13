@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8086/api/v1",
+  baseURL: "https://lensify-backend-1vcn.onrender.com/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
